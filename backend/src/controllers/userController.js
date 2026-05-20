@@ -34,11 +34,9 @@ async function criarUsuario(req, res) {
             });
         }
 
-        if (!['gestor', 'diretor', 'admin'].includes(tipo)) {
-            return res.status(400).json({
-                sucesso: false,
-                mensagem: 'Tipo inválido',
-            });
+        const roleValida = await query('SELECT id FROM roles WHERE slug = $1', [tipo]);
+        if (roleValida.rows.length === 0) {
+            return res.status(400).json({ sucesso: false, mensagem: 'Tipo inválido' });
         }
 
         const usuarioExiste = await query(
@@ -137,11 +135,11 @@ async function editarUsuario(req, res) {
             });
         }
 
-        if (tipo && !['gestor', 'diretor', 'admin'].includes(tipo)) {
-            return res.status(400).json({
-                sucesso: false,
-                mensagem: 'Tipo inválido',
-            });
+        if (tipo) {
+            const roleValida = await query('SELECT id FROM roles WHERE slug = $1', [tipo]);
+            if (roleValida.rows.length === 0) {
+                return res.status(400).json({ sucesso: false, mensagem: 'Tipo inválido' });
+            }
         }
 
         // Admin não pode rebaixar a própria conta

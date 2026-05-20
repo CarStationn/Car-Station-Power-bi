@@ -145,6 +145,34 @@
                     <p>Gerenciamento de usuários e configurações do sistema</p>
                 </div>
 
+                <!-- CATEGORIAS DE USUÁRIO -->
+                <div class="config-box collapsible" id="rolesBox">
+                    <div class="config-box-header" onclick="toggleConfigBox('rolesBox')">
+                        <h2>🏷️ Categorias de usuário</h2>
+                        <span class="config-box-arrow" id="arrow-rolesBox">›</span>
+                    </div>
+                    <div class="config-box-body" id="body-rolesBox">
+                        <p class="box-description">Crie e gerencie as categorias de acesso dos usuários.</p>
+                        <div id="rolesConfigContent"></div>
+                        <div class="dash-add-form role-add-form" id="role-add-form">
+                            <div class="role-add-row">
+                                <input type="text" id="role-add-slug" class="dash-input" placeholder="Identificador (ex: supervisor)" maxlength="30">
+                                <input type="text" id="role-add-label" class="dash-input" placeholder="Nome de exibição (ex: Supervisor)" maxlength="50">
+                            </div>
+                            <div class="role-add-row">
+                                <input type="text" id="role-add-icone" class="dash-input role-icone-input" placeholder="Ícone (ex: 👔)" maxlength="5">
+                                <div class="role-cor-group">
+                                    <label>Cor do badge</label>
+                                    <input type="color" id="role-add-cor" value="#607d8b">
+                                </div>
+                            </div>
+                            <div class="dash-add-actions">
+                                <button class="btn-save-dash" onclick="criarRole()">Adicionar Categoria</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- GERENCIAR DASHBOARDS POWER BI -->
                 <div class="config-box collapsible" id="dashboardConfigBox">
                     <div class="config-box-header" onclick="toggleConfigBox('dashboardConfigBox')">
@@ -178,11 +206,7 @@
                             <span class="form-hint">O usuário definirá a própria senha no primeiro acesso</span>
                         </div>
                         <div class="form-group">
-                            <select id="tipoUsuario">
-                                <option value="gestor">📊 Gestor(a)</option>
-                                <option value="diretor">🏆 Diretor(a)</option>
-                                <option value="admin">👨‍💼 Administrador</option>
-                            </select>
+                            <select id="tipoUsuario"></select>
                         </div>
                         <button class="btn-primary" onclick="cadastrarUsuario()">Cadastrar Usuário</button>
                     </div>
@@ -222,11 +246,7 @@
                 </div>
                 <div class="modal-form-group">
                     <label>Tipo de acesso</label>
-                    <select id="editUserTipo">
-                        <option value="gestor">📊 Gestor(a)</option>
-                        <option value="diretor">🏆 Diretor(a)</option>
-                        <option value="admin">👨‍💼 Administrador</option>
-                    </select>
+                    <select id="editUserTipo" onchange="atualizarPermissoesVisibilidade(this.value)"></select>
                 </div>
             </div>
 

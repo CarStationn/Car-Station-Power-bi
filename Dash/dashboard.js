@@ -37,6 +37,7 @@ function getAuthHeaders() {
 // ==================== VARIÁVEIS GLOBAIS ====================
 let confirmacaoPendente = null;
 let users = [];
+let rolesData = [];
 
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -85,26 +86,37 @@ document.addEventListener('click', function (event) {
   if (event.target === editModal) fecharEditarUsuario();
 });
 
+// ==================== HELPERS DE ROLES ====================
+function getRoleLabel(slug) {
+  const role = rolesData.find(r => r.slug === slug);
+  return role ? `${role.icone} ${role.label}` : slug;
+}
+
+function getRoleCor(slug) {
+  const role = rolesData.find(r => r.slug === slug);
+  return role ? role.cor : '#607d8b';
+}
+
+function isAdminRole(slug) {
+  const role = rolesData.find(r => r.slug === slug);
+  return role ? role.protegido : slug === 'admin';
+}
+
 // ==================== PERMISSÕES ====================
 function aplicarPermissoes() {
   const configBtn = document.querySelector('.bottom-menu a.config');
 
   if (tipoUsuario !== 'admin') {
-    if (configBtn) {
-      configBtn.style.display = 'none';
-    }
+    if (configBtn) configBtn.style.display = 'none';
   }
 
-  // Atualizar badge do usuário
   const userBadge = document.getElementById('userBadge');
-  if (tipoUsuario === 'admin') {
-    userBadge.textContent = 'Admin';
-    userBadge.classList.add('admin');
-  } else if (tipoUsuario === 'diretor') {
-    userBadge.textContent = 'Diretor';
-    userBadge.classList.add('diretor');
+  const role = rolesData.find(r => r.slug === tipoUsuario);
+  if (role) {
+    userBadge.textContent = role.label;
+    userBadge.style.backgroundColor = role.cor;
   } else {
-    userBadge.textContent = 'Gestor';
+    userBadge.textContent = tipoUsuario;
   }
 }
 
@@ -312,7 +324,7 @@ function toggleMobileMenu() {
 }
 
 // ==================== CADASTRO DE USUÁRIO ====================
-function validarNovoUsuario(usuario, senha, tipo) {
+function validarNovoUsuario(usuario, senha) {
   if (!usuario.trim() || !senha.trim()) {
     showNotification('Preencha todos os campos', 'error');
     return false;
@@ -328,11 +340,6 @@ function validarNovoUsuario(usuario, senha, tipo) {
     return false;
   }
 
-  if (!['gestor', 'admin'].includes(tipo)) {
-    showNotification('Tipo de usuário inválido', 'error');
-    return false;
-  }
-
   return true;
 }
 
@@ -342,7 +349,7 @@ async function cadastrarUsuario() {
   const senha = document.getElementById('novaSenha').value;
   const tipo = document.getElementById('tipoUsuario').value;
 
-  if (!validarNovoUsuario(usuario, senha, tipo)) {
+  if (!validarNovoUsuario(usuario, senha)) {
     return;
   }
 
@@ -431,8 +438,8 @@ async function listarUsuarios() {
           <div class="user-item-info">
             <div class="user-item-main">
               <span class="user-item-name">👤 ${escapeHtml(u.username)}</span>
-              <span class="user-item-type ${u.tipo === 'admin' ? 'admin' : u.tipo === 'diretor' ? 'diretor' : 'user'}">
-                ${u.tipo === 'admin' ? '👨‍💼 Admin' : u.tipo === 'diretor' ? '🏆 Diretor(a)' : '📊 Gestor(a)'}
+              <span class="user-item-type" style="background:${getRoleCor(u.tipo)}">
+                ${getRoleLabel(u.tipo)}
               </span>
             </div>
             <span class="user-item-login">${u.email ? u.email + ' · ' : ''}Último acesso: ${ultimoLogin}</span>
@@ -472,7 +479,7 @@ async function abrirEditarUsuario(id, username, tipo) {
   const permissoesGroup = document.getElementById('permissoesGroup');
   const checklist = document.getElementById('permissoesChecklist');
 
-  if (tipo === 'gestor' || tipo === 'diretor') {
+  if (!isAdminRole(tipo)) {
     permissoesGroup.classList.remove('hidden');
     checklist.innerHTML = '<p style="font-size:12px;color:#999;">Carregando...</p>';
 
@@ -598,6 +605,200 @@ async function removerUsuario(id, username) {
     }
   } catch (error) {
     console.error('Erro ao remover usuário:', error);
+    showNotification('Erro de conexão com o servidor', 'error');
+  }
+}
+
+// ==================== CATEGORIAS (ROLES) ====================
+function popularSelectsTipo(tipoSelecionado) {
+  ['tipoUsuario', 'editUserTipo'].forEach(id => {
+    const select = document.getElementById(id);
+    if (!select) return;
+    const valorAtual = tipoSelecionado || select.value;
+    select.innerHTML = rolesData.map(r =>
+      `<option value="${r.slug}" ${r.slug === valorAtual ? 'selected' : ''}>${r.icone} ${r.label}</option>`
+    ).join('');
+  });
+}
+
+function atualizarPermissoesVisibilidade(tipo) {
+  const permissoesGroup = document.getElementById('permissoesGroup');
+  if (!permissoesGroup) return;
+  if (isAdminRole(tipo)) {
+    permissoesGroup.classList.add('hidden');
+  } else {
+    permissoesGroup.classList.remove('hidden');
+  }
+}
+
+async function carregarRoles() {
+  try {
+    const response = await fetch(`${API_BASE}/roles`, { headers: getAuthHeaders() });
+    if (!response.ok) return;
+    const data = await response.json();
+    if (!data.sucesso) return;
+    rolesData = data.roles;
+    popularSelectsTipo();
+    aplicarPermissoes();
+    if (tipoUsuario === 'admin') renderizarConfigRoles();
+  } catch (error) {
+    console.error('Erro ao carregar categorias:', error);
+  }
+}
+
+function renderizarConfigRoles() {
+  const container = document.getElementById('rolesConfigContent');
+  if (!container) return;
+
+  if (rolesData.length === 0) {
+    container.innerHTML = '<p class="dash-list-empty">Nenhuma categoria cadastrada</p>';
+    return;
+  }
+
+  container.innerHTML = rolesData.map(r => `
+    <div class="dash-list-item" id="role-item-${r.id}">
+      <div class="dash-list-item-info">
+        <span class="dash-list-item-nome">
+          <span class="role-cor-swatch" style="background:${r.cor}"></span>
+          ${r.icone} ${r.label}
+          ${r.protegido ? '<span class="role-protegido-tag">protegida</span>' : ''}
+        </span>
+        <span class="dash-list-item-status" style="color:#999;font-size:11px;">${r.slug}</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-edit-dash" onclick="abrirEditarRole(${r.id}, '${escapeHtml(r.label)}', '${escapeHtml(r.icone)}', '${r.cor}')">Editar</button>
+        ${!r.protegido ? `<button class="btn-remove-dash" onclick="confirmarDeletarRole(${r.id}, '${escapeHtml(r.label)}')">Remover</button>` : ''}
+      </div>
+    </div>
+    <div class="dash-add-form hidden" id="role-edit-form-${r.id}">
+      <div class="role-add-row">
+        <input type="text" id="role-edit-label-${r.id}" class="dash-input" placeholder="Nome de exibição" maxlength="50">
+        <input type="text" id="role-edit-icone-${r.id}" class="dash-input role-icone-input" placeholder="Ícone" maxlength="5">
+      </div>
+      <div class="role-cor-group">
+        <label>Cor do badge</label>
+        <input type="color" id="role-edit-cor-${r.id}" value="${r.cor}">
+      </div>
+      <div class="dash-add-actions">
+        <button class="btn-save-dash" onclick="salvarEdicaoRole(${r.id})">Salvar</button>
+        <button class="btn-cancel-dash" onclick="fecharEditarRole(${r.id})">Cancelar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirEditarRole(id, label, icone, cor) {
+  document.querySelectorAll('[id^="role-edit-form-"]').forEach(f => f.classList.add('hidden'));
+  const form = document.getElementById(`role-edit-form-${id}`);
+  if (!form) return;
+  document.getElementById(`role-edit-label-${id}`).value = label;
+  document.getElementById(`role-edit-icone-${id}`).value = icone;
+  document.getElementById(`role-edit-cor-${id}`).value = cor;
+  form.classList.remove('hidden');
+  document.getElementById(`role-edit-label-${id}`).focus();
+}
+
+function fecharEditarRole(id) {
+  document.getElementById(`role-edit-form-${id}`)?.classList.add('hidden');
+}
+
+async function salvarEdicaoRole(id) {
+  const label = document.getElementById(`role-edit-label-${id}`)?.value.trim();
+  const icone = document.getElementById(`role-edit-icone-${id}`)?.value.trim();
+  const cor = document.getElementById(`role-edit-cor-${id}`)?.value;
+
+  if (!label) {
+    showNotification('Informe o nome da categoria', 'error');
+    return;
+  }
+
+  const btn = document.querySelector(`#role-edit-form-${id} .btn-save-dash`);
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    const response = await fetch(`${API_BASE}/roles/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ label, icone: icone || '👤', cor })
+    });
+    const data = await response.json();
+    if (data.sucesso) {
+      showNotification('Categoria atualizada!', 'success');
+      await carregarRoles();
+    } else {
+      showNotification(data.mensagem || 'Erro ao atualizar', 'error');
+    }
+  } catch {
+    showNotification('Erro de conexão com o servidor', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Salvar';
+  }
+}
+
+async function criarRole() {
+  const slug = document.getElementById('role-add-slug')?.value.trim();
+  const label = document.getElementById('role-add-label')?.value.trim();
+  const icone = document.getElementById('role-add-icone')?.value.trim();
+  const cor = document.getElementById('role-add-cor')?.value;
+
+  if (!slug || !label) {
+    showNotification('Preencha o identificador e o nome da categoria', 'error');
+    return;
+  }
+
+  const btn = document.querySelector('#role-add-form .btn-save-dash');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    const response = await fetch(`${API_BASE}/roles`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ slug, label, icone: icone || '👤', cor })
+    });
+    const data = await response.json();
+    if (data.sucesso) {
+      document.getElementById('role-add-slug').value = '';
+      document.getElementById('role-add-label').value = '';
+      document.getElementById('role-add-icone').value = '';
+      document.getElementById('role-add-cor').value = '#607d8b';
+      showNotification(`Categoria "${label}" criada!`, 'success');
+      await carregarRoles();
+    } else {
+      showNotification(data.mensagem || 'Erro ao criar categoria', 'error');
+    }
+  } catch {
+    showNotification('Erro de conexão com o servidor', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Adicionar Categoria';
+  }
+}
+
+function confirmarDeletarRole(id, label) {
+  abrirConfirmacao(
+    'Remover categoria',
+    `Tem certeza que deseja remover a categoria "${label}"? Isso só é possível se não houver usuários nessa categoria.`,
+    () => deletarRole(id, label)
+  );
+}
+
+async function deletarRole(id, label) {
+  try {
+    const response = await fetch(`${API_BASE}/roles/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    const data = await response.json();
+    if (data.sucesso) {
+      showNotification(`Categoria "${label}" removida`, 'info');
+      await carregarRoles();
+    } else {
+      showNotification(data.mensagem || 'Erro ao remover', 'error');
+    }
+  } catch {
     showNotification('Erro de conexão com o servidor', 'error');
   }
 }
@@ -902,10 +1103,10 @@ window.addEventListener('DOMContentLoaded', async function () {
   renderizarSubmenus();
   renderizarInicio();
 
-  // Carregar configs dos dashboards (todos os usuários)
+  // Carregar categorias (roles) e depois dashboards e usuários
+  await carregarRoles();
   await carregarDashboards();
 
-  // Carregar lista de usuários (se for admin)
   if (tipoUsuario === 'admin') {
     listarUsuarios();
   }

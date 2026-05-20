@@ -9,6 +9,7 @@ const { initDatabase } = require('./src/config/database');
 const authRoutes = require('./src/routes/auth');
 const userRoutes = require('./src/routes/users');
 const dashboardRoutes = require('./src/routes/dashboards');
+const rolesRoutes = require('./src/routes/roles');
 const { authMiddleware } = require('./src/middleware/auth');
 
 const app = express();
@@ -45,6 +46,7 @@ app.get('/', (req, res) => res.send('API rodando 🚀'));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboards', dashboardRoutes);
+app.use('/api/roles', rolesRoutes);
 
 app.get('/api/dashboard', authMiddleware, (req, res) => {
     res.json({ sucesso: true, mensagem: 'Acesso autorizado', usuario: req.usuario });

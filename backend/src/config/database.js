@@ -75,6 +75,30 @@ async function initDatabase() {
                 PRIMARY KEY (user_id, dashboard_id)
             );
         `);
+
+        await query(`
+            CREATE TABLE IF NOT EXISTS roles (
+                id SERIAL PRIMARY KEY,
+                slug VARCHAR(50) UNIQUE NOT NULL,
+                label VARCHAR(100) NOT NULL,
+                icone VARCHAR(10) DEFAULT '👤',
+                cor VARCHAR(7) DEFAULT '#607d8b',
+                protegido BOOLEAN DEFAULT FALSE,
+                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        const rolesExist = await query('SELECT COUNT(*) FROM roles');
+        if (parseInt(rolesExist.rows[0].count) === 0) {
+            await query(`
+                INSERT INTO roles (slug, label, icone, cor, protegido) VALUES
+                ('admin', 'Administrador', '👨‍💼', '#e74c3c', TRUE),
+                ('diretor', 'Diretor(a)', '🏆', '#9b59b6', FALSE),
+                ('gestor', 'Gestor(a)', '📊', '#2ecc71', FALSE)
+            `);
+            console.log('✅ Categorias padrão criadas');
+        }
+
         console.log('✅ Migrações aplicadas');
 
         const userExists = await query(
