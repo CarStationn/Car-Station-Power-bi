@@ -45,7 +45,33 @@ function ico(nome, classe = '') {
   return `<svg class="ico ${classe}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${nome}"/></svg>`;
 }
 
-const ICONE_SECAO = { vendas: 'chart', locacao: 'car' };
+// Seções são dinâmicas: vêm de /api/secoes e podem ser criadas pelo admin.
+let secoesData = [];
+
+// Ícones que o admin pode escolher — precisam existir no sprite do dashboard.html
+const ICONES_SECAO = [
+  'chart', 'car', 'money', 'box', 'users', 'calendar', 'target',
+  'wrench', 'truck', 'building', 'pie', 'clipboard', 'trend', 'grid'
+];
+
+function getSecao(slug) {
+  return secoesData.find(sec => sec.slug === slug);
+}
+
+function getSecaoIcone(slug) {
+  const sec = getSecao(slug);
+  return sec ? sec.icone : 'grid';
+}
+
+function getSecaoNome(slug) {
+  const sec = getSecao(slug);
+  return sec ? sec.nome : slug;
+}
+
+function getSecaoCor(slug) {
+  const sec = getSecao(slug);
+  return sec ? sec.cor : 'var(--secao-padrao)';
+}
 
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -163,7 +189,7 @@ function pesquisarDashboard(termo) {
   } else {
     resultados.innerHTML = encontrados.map(d =>
       `<div class="search-result-item" onclick="selecionarDashboardBusca(${d.id}, '${d.secao}')">
-        ${ico(ICONE_SECAO[d.secao] || 'grid')}
+        ${ico(getSecaoIcone(d.secao))}
         <span>${escapeHtml(d.nome)}</span>
       </div>`
     ).join('');
@@ -205,10 +231,17 @@ function mostrarSecao(secaoId) {
 
 
 // ==================== SIDEBAR ACCORDION ====================
-const SECOES_INFO = [
-  { id: 'vendas', nome: 'Vendas', ico: 'chart' },
-  { id: 'locacao', nome: 'Locação', ico: 'car' }
-];
+// Espelha secoesData no formato usado pelo resto do código
+let SECOES_INFO = [];
+
+function atualizarSecoesInfo() {
+  SECOES_INFO = secoesData.map(sec => ({
+    id: sec.slug,
+    nome: sec.nome,
+    ico: sec.icone,
+    cor: sec.cor
+  }));
+}
 
 function abrirMenuSection(secao) {
   const section = document.getElementById(`menu-section-${secao}`);
@@ -291,8 +324,9 @@ function toggleMobileMenu() {
       </div>
       <nav class="mobile-menu-nav">
         <a onclick="toggleMobileMenu(); mostrarSecao('inicio')">${ico('home')} Início</a>
-        <a onclick="toggleMobileMenu(); toggleMenuSection('vendas')">${ico('chart')} Vendas</a>
-        <a onclick="toggleMobileMenu(); toggleMenuSection('locacao')">${ico('car')} Locação</a>
+        ${SECOES_INFO.map(({ id, nome, ico: icone }) =>
+          `<a onclick="toggleMobileMenu(); mostrarSecao('${id}')">${ico(icone)} ${escapeHtml(nome)}</a>`
+        ).join('')}
       </nav>
       <div class="mobile-menu-bottom">
         <a onclick="toggleMobileMenu(); mostrarSecao('configuracoes')">${ico('settings')} Configurações</a>
@@ -517,7 +551,7 @@ async function abrirEditarUsuario(id, username, tipo) {
         checklist.innerHTML = todosOsDashes.map(d => `
           <label class="permissao-item">
             <input type="checkbox" value="${d.id}" ${permitidos.includes(d.id) ? 'checked' : ''}>
-            <span>${ico(ICONE_SECAO[d.secao] || 'grid')} ${escapeHtml(d.nome)}</span>
+            <span>${ico(getSecaoIcone(d.secao))} ${escapeHtml(d.nome)}</span>
           </label>
         `).join('');
       }
@@ -819,7 +853,212 @@ async function deletarRole(id, label) {
 }
 
 // ==================== DASHBOARDS POWER BI ====================
-let dashboardsData = { vendas: [], locacao: [] };
+let dashboardsData = {};
+
+// ==================== CONFIG: SEÇÕES (ADMIN) ====================
+
+// Paleta de ícones clicável, reaproveitando o sprite da página
+function seletorIcones(prefixo, selecionado) {
+  return `
+    <div class="icone-picker" id="${prefixo}-picker">
+      ${ICONES_SECAO.map(nome => `
+        <button type="button"
+          class="icone-opcao ${nome === selecionado ? 'is-selected' : ''}"
+          data-icone="${nome}"
+          onclick="selecionarIcone('${prefixo}', '${nome}')"
+          title="${nome}" aria-label="Ícone ${nome}">
+          ${ico(nome)}
+        </button>`).join('')}
+    </div>
+    <input type="hidden" id="${prefixo}-icone" value="${selecionado}">`;
+}
+
+function selecionarIcone(prefixo, nome) {
+  const campo = document.getElementById(`${prefixo}-icone`);
+  if (campo) campo.value = nome;
+
+  const picker = document.getElementById(`${prefixo}-picker`);
+  if (!picker) return;
+  picker.querySelectorAll('.icone-opcao').forEach(btn => {
+    btn.classList.toggle('is-selected', btn.dataset.icone === nome);
+  });
+}
+
+function renderizarConfigSecoes() {
+  const container = document.getElementById('secoesConfigContent');
+  if (!container) return;
+
+  if (secoesData.length === 0) {
+    container.innerHTML = '<p class="dash-list-empty">Nenhuma seção cadastrada</p>';
+    return;
+  }
+
+  container.innerHTML = secoesData.map(sec => {
+    const qtd = (dashboardsData[sec.slug] || []).length;
+    return `
+    <div class="dash-list-item" id="secao-item-${sec.id}" style="--secao:${escapeHtml(sec.cor)}">
+      <div class="dash-list-item-info">
+        <span class="dash-list-item-nome">
+          <span class="secao-chip">${ico(sec.icone)}</span>
+          ${escapeHtml(sec.nome)}
+        </span>
+        <span class="dash-list-item-status">
+          ${escapeHtml(sec.slug)} · ${qtd} ${qtd === 1 ? 'painel' : 'painéis'}
+        </span>
+      </div>
+      <div class="dash-list-item-actions">
+        <button class="btn-edit-dash" onclick="abrirEditarSecao(${sec.id})">${ico('edit')} Editar</button>
+        <button class="btn-remove-dash" onclick="confirmarDeletarSecao(${sec.id})">${ico('trash')} Remover</button>
+      </div>
+    </div>
+    <div class="dash-add-form hidden" id="secao-edit-form-${sec.id}">
+      <input type="text" id="secao-edit-nome-${sec.id}" class="dash-input"
+             placeholder="Nome de exibição" maxlength="50" value="${escapeHtml(sec.nome)}">
+      <div class="campo-icone">
+        <label>Ícone</label>
+        ${seletorIcones(`secao-edit-${sec.id}`, sec.icone)}
+      </div>
+      <div class="role-cor-group">
+        <label for="secao-edit-cor-${sec.id}">Cor da seção</label>
+        <input type="color" id="secao-edit-cor-${sec.id}" value="${sec.cor}">
+      </div>
+      <div class="dash-add-actions">
+        <button class="btn-save-dash" onclick="salvarEdicaoSecao(${sec.id})">Salvar</button>
+        <button class="btn-cancel-dash" onclick="fecharEditarSecao(${sec.id})">Cancelar</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  // O formulário de criação também precisa do seletor de ícones
+  const addPicker = document.getElementById('secaoAddIconeWrap');
+  if (addPicker && !addPicker.dataset.pronto) {
+    addPicker.innerHTML = seletorIcones('secao-add', 'chart');
+    addPicker.dataset.pronto = '1';
+  }
+}
+
+function abrirEditarSecao(id) {
+  secoesData.forEach(sec => {
+    document.getElementById(`secao-edit-form-${sec.id}`)?.classList.add('hidden');
+  });
+  document.getElementById(`secao-edit-form-${id}`)?.classList.remove('hidden');
+  document.getElementById(`secao-edit-nome-${id}`)?.focus();
+}
+
+function fecharEditarSecao(id) {
+  document.getElementById(`secao-edit-form-${id}`)?.classList.add('hidden');
+}
+
+async function criarSecao() {
+  const slug = document.getElementById('secao-add-slug')?.value.trim();
+  const nome = document.getElementById('secao-add-nome')?.value.trim();
+  const icone = document.getElementById('secao-add-icone')?.value || 'grid';
+  const cor = document.getElementById('secao-add-cor')?.value;
+
+  if (!slug || !nome) {
+    showNotification('Preencha o identificador e o nome da seção', 'error');
+    return;
+  }
+
+  const btn = document.querySelector('#secao-add-form .btn-save-dash');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    const response = await fetch(`${API_BASE}/secoes`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ slug, nome, icone, cor })
+    });
+    const data = await response.json();
+
+    if (data.sucesso) {
+      document.getElementById('secao-add-slug').value = '';
+      document.getElementById('secao-add-nome').value = '';
+      showNotification(`Seção "${nome}" criada!`, 'success');
+      await carregarSecoes();
+      await carregarDashboards();
+    } else {
+      showNotification(data.mensagem || 'Erro ao criar seção', 'error');
+    }
+  } catch {
+    showNotification('Erro de conexão com o servidor', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Adicionar seção';
+  }
+}
+
+async function salvarEdicaoSecao(id) {
+  const nome = document.getElementById(`secao-edit-nome-${id}`)?.value.trim();
+  const icone = document.getElementById(`secao-edit-${id}-icone`)?.value;
+  const cor = document.getElementById(`secao-edit-cor-${id}`)?.value;
+
+  if (!nome) {
+    showNotification('O nome da seção não pode ficar vazio', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE}/secoes/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ nome, icone, cor })
+    });
+    const data = await response.json();
+
+    if (data.sucesso) {
+      showNotification('Seção atualizada!', 'success');
+      fecharEditarSecao(id);
+      await carregarSecoes();
+      await carregarDashboards();
+    } else {
+      showNotification(data.mensagem || 'Erro ao atualizar seção', 'error');
+    }
+  } catch {
+    showNotification('Erro de conexão com o servidor', 'error');
+  }
+}
+
+function confirmarDeletarSecao(id) {
+  const secao = secoesData.find(sec => sec.id === id);
+  if (!secao) return;
+
+  const qtd = (dashboardsData[secao.slug] || []).length;
+  if (qtd > 0) {
+    showNotification(
+      `"${secao.nome}" ainda tem ${qtd} ${qtd === 1 ? 'painel' : 'painéis'}. Remova antes de excluir a seção.`,
+      'error'
+    );
+    return;
+  }
+
+  abrirConfirmacao(
+    'Remover seção',
+    `Remover a seção "${secao.nome}"? Ela sai da sidebar e da tela inicial.`,
+    () => deletarSecao(id)
+  );
+}
+
+async function deletarSecao(id) {
+  try {
+    const response = await fetch(`${API_BASE}/secoes/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    const data = await response.json();
+
+    if (data.sucesso) {
+      showNotification('Seção removida', 'success');
+      await carregarSecoes();
+      await carregarDashboards();
+    } else {
+      showNotification(data.mensagem || 'Erro ao remover seção', 'error');
+    }
+  } catch {
+    showNotification('Erro de conexão com o servidor', 'error');
+  }
+}
 
 function extrairUrl(input) {
   const trimmed = input.trim();
@@ -859,6 +1098,71 @@ function aplicarIframe(secao, url) {
   }
 }
 
+async function carregarSecoes() {
+  try {
+    const response = await fetch(`${API_BASE}/secoes`, { headers: getAuthHeaders() });
+    if (!response.ok) return;
+    const data = await response.json();
+    if (!data.sucesso) return;
+
+    secoesData = data.secoes;
+    atualizarSecoesInfo();
+    renderizarMenuSecoes();
+    renderizarSecoesConteudo();
+    if (tipoUsuario === 'admin') renderizarConfigSecoes();
+  } catch (error) {
+    console.error('Erro ao carregar seções:', error);
+  }
+}
+
+// Blocos sanfonados da sidebar, um por seção
+function renderizarMenuSecoes() {
+  const container = document.getElementById('menuSecoes');
+  if (!container) return;
+
+  container.innerHTML = SECOES_INFO.map(({ id, nome, ico: icone, cor }) => `
+    <div class="menu-section" id="menu-section-${id}" style="--secao:${escapeHtml(cor)}">
+      <div class="menu-section-header" onclick="toggleMenuSection('${id}')">
+        <span class="menu-section-title">
+          ${ico(icone)}${escapeHtml(nome)}
+        </span>
+        <svg class="ico menu-section-arrow" id="menu-arrow-${id}" viewBox="0 0 24 24"><use href="#i-chevron"/></svg>
+      </div>
+      <div class="menu-submenu" id="menu-submenu-${id}"></div>
+    </div>
+  `).join('');
+}
+
+// Uma <section> de conteúdo por seção, com iframe e placeholder próprios
+function renderizarSecoesConteudo() {
+  const main = document.querySelector('.main-content');
+  const ancora = document.getElementById('configuracoes');
+  if (!main || !ancora) return;
+
+  main.querySelectorAll('.conteudo[data-secao]').forEach(el => el.remove());
+
+  SECOES_INFO.forEach(({ id, nome, ico: icone }) => {
+    const secao = document.createElement('section');
+    secao.id = id;
+    secao.className = 'conteudo hidden';
+    secao.dataset.secao = id;
+    secao.innerHTML = `
+      <div class="section-header" id="section-header-${id}">
+        <span class="section-eyebrow">${ico(icone)}${escapeHtml(nome)}</span>
+        <h1>${escapeHtml(nome)}</h1>
+        <p>Escolha um painel no menu lateral para visualizar.</p>
+      </div>
+      <div id="iframe-${id}" class="iframe-container hidden"></div>
+      <div id="placeholder-${id}" class="placeholder">
+        <span class="placeholder-icon">${ico(icone)}</span>
+        <h2>Nenhum painel aberto</h2>
+        <p>Selecione um dashboard de ${escapeHtml(nome)} no menu lateral.</p>
+        <small>Se a lista estiver vazia, nenhum painel foi configurado ainda.</small>
+      </div>`;
+    main.insertBefore(secao, ancora);
+  });
+}
+
 async function carregarDashboards() {
   try {
     const response = await fetch(`${API_BASE}/dashboards`, { headers: getAuthHeaders() });
@@ -867,7 +1171,9 @@ async function carregarDashboards() {
     const data = await response.json();
     if (!data.sucesso) return;
 
-    dashboardsData = { vendas: [], locacao: [], financeiro: [], estoque: [] };
+    // Uma lista por seção cadastrada; painéis de seções removidas ficam de fora
+    dashboardsData = {};
+    SECOES_INFO.forEach(({ id }) => { dashboardsData[id] = []; });
     data.dashboards.forEach(d => {
       if (dashboardsData[d.secao]) dashboardsData[d.secao].push(d);
     });
@@ -875,6 +1181,7 @@ async function carregarDashboards() {
     renderizarSubmenus();
     renderizarInicio();
     renderizarConfigDashboards();
+    if (tipoUsuario === 'admin') renderizarConfigSecoes();
 
   } catch (error) {
     console.error('Erro ao carregar dashboards:', error);
@@ -892,7 +1199,7 @@ function renderizarInicio() {
   SECOES_INFO.forEach(({ id: secao, nome, ico: iconeSecao }) => {
     (dashboardsData[secao] || [])
       .filter(d => d.iframe_url)
-      .forEach(d => cards.push({ ...d, secao, secaoNome: nome, iconeSecao }));
+      .forEach(d => cards.push({ ...d, secao, secaoNome: nome, iconeSecao, cor: getSecaoCor(secao) }));
   });
 
   if (resumo) {
@@ -934,7 +1241,7 @@ function renderizarInicio() {
   }
 
   grid.innerHTML = cards.map(d => `
-    <button type="button" class="dash-card dash-card--${d.secao}"
+    <button type="button" class="dash-card" style="--secao:${escapeHtml(d.cor)}"
       onclick="abrirDashboardItem(${d.id}, '${d.secao}'); abrirMenuSection('${d.secao}')">
       <span class="dash-card-watermark">${ico(d.iconeSecao)}</span>
       <span class="dash-card-tag">${ico(d.iconeSecao)}${d.secaoNome}</span>
@@ -1166,8 +1473,9 @@ window.addEventListener('DOMContentLoaded', async function () {
   renderizarSubmenus();
   renderizarInicio();
 
-  // Carregar categorias (roles) e depois dashboards e usuários
+  // Carregar categorias, depois seções (que montam menu e conteúdo) e então dashboards
   await carregarRoles();
+  await carregarSecoes();
   await carregarDashboards();
 
   if (tipoUsuario === 'admin') {

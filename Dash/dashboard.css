@@ -291,6 +291,22 @@ textarea {
   transform: rotate(90deg);
 }
 
+#menuSecoes {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* A cor da seção tinge o icone e o item ativo */
+.menu-section[style*="--secao"] .menu-section-header.active .ico {
+  color: var(--secao);
+}
+
+.menu-section[style*="--secao"] .menu-subitem.active {
+  color: var(--secao);
+  border-left-color: var(--secao);
+}
+
 /* -------------------- SUBMENU -------------------- */
 /* Fechado por padrao; o JS alterna .open no .menu-section.
    display:none em vez de altura animada porque o JS injeta varios
@@ -1218,6 +1234,11 @@ textarea {
   text-align: center;
 }
 
+.dash-add-form > .role-cor-group {
+  align-self: flex-start;
+  min-height: 42px;
+}
+
 .role-cor-group {
   display: flex;
   align-items: center;
@@ -1260,6 +1281,71 @@ textarea {
   background: var(--surface-1);
   font-size: var(--text-2xs);
   color: var(--text-subtle);
+}
+
+/* -------------------- SEÇÕES: SELETOR DE ÍCONE -------------------- */
+.campo-icone {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.campo-icone > label {
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-subtle);
+}
+
+.icone-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.icone-opcao {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-input);
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              background-color var(--dur-fast) var(--ease-out);
+}
+
+.icone-opcao:hover {
+  color: var(--text);
+  border-color: var(--line-brand);
+}
+
+.icone-opcao.is-selected {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand);
+  box-shadow: inset 0 0 0 1px var(--brand);
+}
+
+/* Miniatura da seção na lista de configuração */
+.secao-chip {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--secao, var(--secao-padrao)) 35%, transparent);
+  background: color-mix(in srgb, var(--secao, var(--secao-padrao)) 14%, transparent);
+  color: var(--secao, var(--secao-padrao));
+}
+
+.secao-chip .ico {
+  width: 15px;
+  height: 15px;
 }
 
 /* -------------------- LISTA DE USUÁRIOS -------------------- */

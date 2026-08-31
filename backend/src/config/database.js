@@ -99,6 +99,47 @@ async function initDatabase() {
             console.log('✅ Categorias padrão criadas');
         }
 
+        await query(`
+            CREATE TABLE IF NOT EXISTS secoes (
+                id SERIAL PRIMARY KEY,
+                slug VARCHAR(50) UNIQUE NOT NULL,
+                nome VARCHAR(100) NOT NULL,
+                icone VARCHAR(30) DEFAULT 'grid',
+                cor VARCHAR(7) DEFAULT '#4CE0B3',
+                ordem INT DEFAULT 0,
+                criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        `);
+
+        const secoesExist = await query('SELECT COUNT(*) FROM secoes');
+        if (parseInt(secoesExist.rows[0].count) === 0) {
+            await query(`
+                INSERT INTO secoes (slug, nome, icone, cor, ordem) VALUES
+                ('vendas', 'Vendas', 'chart', '#4CE0B3', 1),
+                ('locacao', 'Locação', 'car', '#5AA6FF', 2)
+            `);
+            console.log('✅ Seções padrão criadas');
+        }
+
+        // Adota seções que já existiam soltas em dashboards.secao antes desta tabela
+        const orfas = await query(`
+            SELECT DISTINCT d.secao
+            FROM dashboards d
+            LEFT JOIN secoes s ON s.slug = d.secao
+            WHERE s.id IS NULL AND d.secao IS NOT NULL AND d.secao <> ''
+        `);
+        for (const linha of orfas.rows) {
+            const slug = linha.secao;
+            const nome = slug.charAt(0).toUpperCase() + slug.slice(1);
+            await query(
+                `INSERT INTO secoes (slug, nome, icone, cor, ordem)
+                 VALUES ($1, $2, 'grid', '#9BB0AB', (SELECT COALESCE(MAX(ordem), 0) + 1 FROM secoes))
+                 ON CONFLICT (slug) DO NOTHING`,
+                [slug, nome]
+            );
+            console.log(`✅ Seção "${slug}" adotada a partir dos dashboards existentes`);
+        }
+
         console.log('✅ Migrações aplicadas');
 
         const userExists = await query(

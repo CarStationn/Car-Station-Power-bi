@@ -10,6 +10,7 @@ const authRoutes = require('./src/routes/auth');
 const userRoutes = require('./src/routes/users');
 const dashboardRoutes = require('./src/routes/dashboards');
 const rolesRoutes = require('./src/routes/roles');
+const secoesRoutes = require('./src/routes/secoes');
 const { authMiddleware } = require('./src/middleware/auth');
 
 const app = express();
@@ -47,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/dashboards', dashboardRoutes);
 app.use('/api/roles', rolesRoutes);
+app.use('/api/secoes', secoesRoutes);
 
 app.get('/api/dashboard', authMiddleware, (req, res) => {
     res.json({ sucesso: true, mensagem: 'Acesso autorizado', usuario: req.usuario });

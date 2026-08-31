@@ -116,6 +116,63 @@
                 stroke-linejoin="round">
                 <path d="M5 12h13M13 6l6 6-6 6" />
             </g>
+            <g id="i-money" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="2.5" y="6" width="19" height="12" rx="2" />
+                <circle cx="12" cy="12" r="2.6" />
+                <path d="M6 9.5v5M18 9.5v5" />
+            </g>
+            <g id="i-box" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9z" />
+                <path d="M3.5 7.5 12 12l8.5-4.5" />
+                <path d="M12 12v9" />
+            </g>
+            <g id="i-calendar" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="3.5" y="5" width="17" height="16" rx="2" />
+                <path d="M3.5 10h17M8 3v4M16 3v4" />
+            </g>
+            <g id="i-target" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <circle cx="12" cy="12" r="8.5" />
+                <circle cx="12" cy="12" r="4.5" />
+                <circle cx="12" cy="12" r="1" />
+            </g>
+            <g id="i-wrench" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M15.5 3a5.5 5.5 0 0 0-5 7.7L3.6 17.6a2 2 0 0 0 2.8 2.8l6.9-6.9A5.5 5.5 0 0 0 20 8.5l-3 3-2.5-2.5 3-3A5.5 5.5 0 0 0 15.5 3z" />
+            </g>
+            <g id="i-truck" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M2.5 6.5h11v10h-11z" />
+                <path d="M13.5 10h4l4 3.5v3h-8z" />
+                <circle cx="7" cy="18" r="1.8" />
+                <circle cx="17" cy="18" r="1.8" />
+            </g>
+            <g id="i-building" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16" />
+                <path d="M15 10h3a2 2 0 0 1 2 2v9" />
+                <path d="M2.5 21h19" />
+                <path d="M8 7.5h3M8 11.5h3M8 15.5h3" />
+            </g>
+            <g id="i-pie" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M12 3a9 9 0 1 0 9 9h-9z" />
+                <path d="M15 3.6A9 9 0 0 1 20.4 9H15z" />
+            </g>
+            <g id="i-clipboard" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <rect x="5" y="4.5" width="14" height="16.5" rx="2" />
+                <path d="M9 4.5V3.5a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 3.5v1" />
+                <path d="M9 10h6M9 14h6M9 18h3" />
+            </g>
+            <g id="i-trend" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M3 17.5 9 11l4 4 8-8.5" />
+                <path d="M15.5 6.5H21V12" />
+            </g>
             <g id="i-grid" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
                 stroke-linejoin="round">
                 <rect x="4" y="4" width="6.5" height="6.5" rx="1.5" />
@@ -154,31 +211,8 @@
                     Início
                 </a>
 
-                <div class="menu-section" id="menu-section-vendas">
-                    <div class="menu-section-header" onclick="toggleMenuSection('vendas')">
-                        <span class="menu-section-title">
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-chart" /></svg>
-                            Vendas
-                        </span>
-                        <svg class="ico menu-section-arrow" id="menu-arrow-vendas" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="menu-submenu" id="menu-submenu-vendas"></div>
-                </div>
-
-                <div class="menu-section" id="menu-section-locacao">
-                    <div class="menu-section-header" onclick="toggleMenuSection('locacao')">
-                        <span class="menu-section-title">
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-car" /></svg>
-                            Locação
-                        </span>
-                        <svg class="ico menu-section-arrow" id="menu-arrow-locacao" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="menu-submenu" id="menu-submenu-locacao"></div>
-                </div>
+                <!-- Blocos de seção montados pelo dashboard.js a partir de /api/secoes -->
+                <div id="menuSecoes"></div>
 
             </nav>
 
@@ -233,51 +267,8 @@
                 <div class="dash-grid" id="dashGrid"></div>
             </section>
 
-            <!-- ---------------------- SEÇÃO: VENDAS ---------------------- -->
-            <section id="vendas" class="conteudo hidden">
-                <div class="section-header" id="section-header-vendas">
-                    <span class="section-eyebrow">
-                        <svg class="ico" viewBox="0 0 24 24"><use href="#i-chart" /></svg>
-                        Vendas
-                    </span>
-                    <h1>Vendas</h1>
-                    <p>Escolha um painel no menu lateral para visualizar.</p>
-                </div>
-
-                <div id="iframe-vendas" class="iframe-container hidden"></div>
-
-                <div id="placeholder-vendas" class="placeholder">
-                    <span class="placeholder-icon">
-                        <svg class="ico" viewBox="0 0 24 24"><use href="#i-chart" /></svg>
-                    </span>
-                    <h2>Nenhum painel aberto</h2>
-                    <p>Selecione um dashboard de Vendas no menu lateral.</p>
-                    <small>Se a lista estiver vazia, nenhum painel foi configurado ainda.</small>
-                </div>
-            </section>
-
-            <!-- ---------------------- SEÇÃO: LOCAÇÃO ---------------------- -->
-            <section id="locacao" class="conteudo hidden">
-                <div class="section-header" id="section-header-locacao">
-                    <span class="section-eyebrow">
-                        <svg class="ico" viewBox="0 0 24 24"><use href="#i-car" /></svg>
-                        Locação
-                    </span>
-                    <h1>Locação</h1>
-                    <p>Escolha um painel no menu lateral para visualizar.</p>
-                </div>
-
-                <div id="iframe-locacao" class="iframe-container hidden"></div>
-
-                <div id="placeholder-locacao" class="placeholder">
-                    <span class="placeholder-icon">
-                        <svg class="ico" viewBox="0 0 24 24"><use href="#i-car" /></svg>
-                    </span>
-                    <h2>Nenhum painel aberto</h2>
-                    <p>Selecione um dashboard de Locação no menu lateral.</p>
-                    <small>Se a lista estiver vazia, nenhum painel foi configurado ainda.</small>
-                </div>
-            </section>
+            <!-- As seções de conteúdo (Vendas, Locação, ...) são criadas pelo
+                 dashboard.js e inseridas aqui, antes de Configurações. -->
 
             <!-- ------------------- SEÇÃO: CONFIGURAÇÕES ------------------- -->
             <section id="configuracoes" class="conteudo hidden">
@@ -321,6 +312,45 @@
                             </div>
                             <div class="dash-add-actions">
                                 <button class="btn-save-dash" onclick="criarRole()">Adicionar categoria</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEÇÕES -->
+                <div class="config-box collapsible" id="secoesBox">
+                    <div class="config-box-header" onclick="toggleConfigBox('secoesBox')">
+                        <h2>
+                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-grid" /></svg>
+                            Seções do portal
+                        </h2>
+                        <svg class="ico config-box-arrow" id="arrow-secoesBox" viewBox="0 0 24 24">
+                            <use href="#i-chevron" />
+                        </svg>
+                    </div>
+                    <div class="config-box-body" id="body-secoesBox">
+                        <p class="box-description">
+                            Cada seção vira um item na barra lateral e passa a aceitar painéis do Power BI.
+                            Uma seção só pode ser removida depois que os painéis dela saírem.
+                        </p>
+                        <div id="secoesConfigContent"></div>
+                        <div class="dash-add-form" id="secao-add-form">
+                            <div class="role-add-row">
+                                <input type="text" id="secao-add-slug" class="dash-input"
+                                    placeholder="Identificador (ex: financeiro)" maxlength="30">
+                                <input type="text" id="secao-add-nome" class="dash-input"
+                                    placeholder="Nome de exibição (ex: Financeiro)" maxlength="50">
+                            </div>
+                            <div class="campo-icone">
+                                <label>Ícone</label>
+                                <div id="secaoAddIconeWrap"></div>
+                            </div>
+                            <div class="role-cor-group">
+                                <label for="secao-add-cor">Cor da seção</label>
+                                <input type="color" id="secao-add-cor" value="#4CE0B3">
+                            </div>
+                            <div class="dash-add-actions">
+                                <button class="btn-save-dash" onclick="criarSecao()">Adicionar seção</button>
                             </div>
                         </div>
                     </div>
