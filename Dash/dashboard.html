@@ -278,147 +278,182 @@
                         Administração
                     </span>
                     <h1>Configurações</h1>
-                    <p>Categorias de acesso, painéis do Power BI e usuários do portal.</p>
+                    <p>Estrutura do portal e controle de acesso.</p>
                 </div>
 
-                <!-- CATEGORIAS DE USUÁRIO -->
-                <div class="config-box collapsible" id="rolesBox">
-                    <div class="config-box-header" onclick="toggleConfigBox('rolesBox')">
-                        <h2>
+                <div class="config-layout">
+
+                    <!-- Navegação das abas -->
+                    <nav class="config-nav" aria-label="Áreas de configuração">
+                        <span class="config-nav-group">Conteúdo</span>
+
+                        <button type="button" class="config-nav-item is-active" id="navtab-secoes"
+                            onclick="mostrarAbaConfig('secoes')">
+                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-grid" /></svg>
+                            <span>Seções</span>
+                            <span class="config-nav-count" id="countSecoes">0</span>
+                        </button>
+
+                        <button type="button" class="config-nav-item" id="navtab-paineis"
+                            onclick="mostrarAbaConfig('paineis')">
+                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-chart" /></svg>
+                            <span>Painéis</span>
+                            <span class="config-nav-count" id="countPaineis">0</span>
+                        </button>
+
+                        <span class="config-nav-group">Acesso</span>
+
+                        <button type="button" class="config-nav-item" id="navtab-usuarios"
+                            onclick="mostrarAbaConfig('usuarios')">
+                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-users" /></svg>
+                            <span>Usuários</span>
+                            <span class="config-nav-count" id="countUsuarios">0</span>
+                        </button>
+
+                        <button type="button" class="config-nav-item" id="navtab-categorias"
+                            onclick="mostrarAbaConfig('categorias')">
                             <svg class="ico" viewBox="0 0 24 24"><use href="#i-tag" /></svg>
-                            Categorias de usuário
-                        </h2>
-                        <svg class="ico config-box-arrow" id="arrow-rolesBox" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="config-box-body" id="body-rolesBox">
-                        <p class="box-description">Crie e gerencie as categorias de acesso dos usuários.</p>
-                        <div id="rolesConfigContent"></div>
-                        <div class="dash-add-form role-add-form" id="role-add-form">
-                            <div class="role-add-row">
-                                <input type="text" id="role-add-slug" class="dash-input"
-                                    placeholder="Identificador (ex: supervisor)" maxlength="30">
-                                <input type="text" id="role-add-label" class="dash-input"
-                                    placeholder="Nome de exibição (ex: Supervisor)" maxlength="50">
+                            <span>Categorias</span>
+                            <span class="config-nav-count" id="countCategorias">0</span>
+                        </button>
+                    </nav>
+
+                    <!-- Painéis: só um visível por vez -->
+                    <div class="config-panels">
+
+                        <!-- ABA: SEÇÕES -->
+                        <div class="config-panel" id="aba-secoes">
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Seções do portal</h2>
+                                    <p>Cada seção vira um item na barra lateral e passa a aceitar painéis.
+                                        Só pode ser removida depois que os painéis dela saírem.</p>
+                                </div>
+                                <button class="btn-primary" onclick="toggleFormulario('secao-add-form')">
+                                    <svg class="ico" viewBox="0 0 24 24"><use href="#i-plus" /></svg>
+                                    Nova seção
+                                </button>
                             </div>
-                            <div class="role-add-row">
-                                <input type="text" id="role-add-icone" class="dash-input role-icone-input"
-                                    placeholder="Ícone" maxlength="5">
+
+                            <div class="dash-add-form hidden" id="secao-add-form">
+                                <div class="role-add-row">
+                                    <input type="text" id="secao-add-slug" class="dash-input"
+                                        placeholder="Identificador (ex: financeiro)" maxlength="30">
+                                    <input type="text" id="secao-add-nome" class="dash-input"
+                                        placeholder="Nome de exibição (ex: Financeiro)" maxlength="50">
+                                </div>
+                                <div class="campo-icone">
+                                    <label>Ícone</label>
+                                    <div id="secaoAddIconeWrap"></div>
+                                </div>
                                 <div class="role-cor-group">
-                                    <label for="role-add-cor">Cor do badge</label>
-                                    <input type="color" id="role-add-cor" value="#4CE0B3">
+                                    <label for="secao-add-cor">Cor da seção</label>
+                                    <input type="color" id="secao-add-cor" value="#4CE0B3">
+                                </div>
+                                <div class="dash-add-actions">
+                                    <button class="btn-save-dash" onclick="criarSecao()">Adicionar seção</button>
+                                    <button class="btn-cancel-dash"
+                                        onclick="toggleFormulario('secao-add-form')">Cancelar</button>
                                 </div>
                             </div>
-                            <div class="dash-add-actions">
-                                <button class="btn-save-dash" onclick="criarRole()">Adicionar categoria</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- SEÇÕES -->
-                <div class="config-box collapsible" id="secoesBox">
-                    <div class="config-box-header" onclick="toggleConfigBox('secoesBox')">
-                        <h2>
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-grid" /></svg>
-                            Seções do portal
-                        </h2>
-                        <svg class="ico config-box-arrow" id="arrow-secoesBox" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="config-box-body" id="body-secoesBox">
-                        <p class="box-description">
-                            Cada seção vira um item na barra lateral e passa a aceitar painéis do Power BI.
-                            Uma seção só pode ser removida depois que os painéis dela saírem.
-                        </p>
-                        <div id="secoesConfigContent"></div>
-                        <div class="dash-add-form" id="secao-add-form">
-                            <div class="role-add-row">
-                                <input type="text" id="secao-add-slug" class="dash-input"
-                                    placeholder="Identificador (ex: financeiro)" maxlength="30">
-                                <input type="text" id="secao-add-nome" class="dash-input"
-                                    placeholder="Nome de exibição (ex: Financeiro)" maxlength="50">
-                            </div>
-                            <div class="campo-icone">
-                                <label>Ícone</label>
-                                <div id="secaoAddIconeWrap"></div>
-                            </div>
-                            <div class="role-cor-group">
-                                <label for="secao-add-cor">Cor da seção</label>
-                                <input type="color" id="secao-add-cor" value="#4CE0B3">
-                            </div>
-                            <div class="dash-add-actions">
-                                <button class="btn-save-dash" onclick="criarSecao()">Adicionar seção</button>
-                            </div>
+                            <div id="secoesConfigContent"></div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- DASHBOARDS POWER BI -->
-                <div class="config-box collapsible" id="dashboardConfigBox">
-                    <div class="config-box-header" onclick="toggleConfigBox('dashboardConfigBox')">
-                        <h2>
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-grid" /></svg>
-                            Dashboards Power BI
-                        </h2>
-                        <svg class="ico config-box-arrow" id="arrow-dashboardConfigBox" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="config-box-body" id="body-dashboardConfigBox">
-                        <p class="box-description">Adicione e gerencie os painéis de cada seção.</p>
-                        <div id="dashConfigContent"></div>
-                    </div>
-                </div>
+                        <!-- ABA: PAINÉIS -->
+                        <div class="config-panel hidden" id="aba-paineis">
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Dashboards Power BI</h2>
+                                    <p>Cole o link ou o código do iframe de cada painel, dentro da seção
+                                        correspondente.</p>
+                                </div>
+                            </div>
+                            <div id="dashConfigContent"></div>
+                        </div>
 
-                <!-- CADASTRO DE USUÁRIO -->
-                <div class="config-box collapsible" id="cadastroBox">
-                    <div class="config-box-header" onclick="toggleConfigBox('cadastroBox')">
-                        <h2>
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-plus" /></svg>
-                            Cadastrar novo usuário
-                        </h2>
-                        <svg class="ico config-box-arrow" id="arrow-cadastroBox" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="config-box-body" id="body-cadastroBox">
-                        <p class="box-description">Adicione um novo usuário ao portal.</p>
-                        <div class="form-group">
-                            <input type="text" id="novoUsuario" placeholder="Nome de exibição" maxlength="20">
-                            <span class="form-hint">Ex: Victor, Maria</span>
-                        </div>
-                        <div class="form-group">
-                            <input type="email" id="novoEmail" placeholder="Email" maxlength="100">
-                            <span class="form-hint">Usado para fazer login</span>
-                        </div>
-                        <div class="form-group">
-                            <input type="password" id="novaSenha" placeholder="Senha temporária" maxlength="20">
-                            <span class="form-hint">O usuário definirá a própria senha no primeiro acesso</span>
-                        </div>
-                        <div class="form-group">
-                            <select id="tipoUsuario"></select>
-                        </div>
-                        <button class="btn-primary" onclick="cadastrarUsuario()">Cadastrar usuário</button>
-                    </div>
-                </div>
+                        <!-- ABA: USUÁRIOS -->
+                        <div class="config-panel hidden" id="aba-usuarios">
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Usuários</h2>
+                                    <p>Quem tem acesso ao portal. A senha do primeiro acesso é definida
+                                        pelo próprio usuário.</p>
+                                </div>
+                                <button class="btn-primary" onclick="toggleFormulario('usuario-add-form')">
+                                    <svg class="ico" viewBox="0 0 24 24"><use href="#i-plus" /></svg>
+                                    Novo usuário
+                                </button>
+                            </div>
 
-                <!-- LISTA DE USUÁRIOS -->
-                <div class="config-box collapsible" id="usuariosBox">
-                    <div class="config-box-header" onclick="toggleConfigBox('usuariosBox')">
-                        <h2>
-                            <svg class="ico" viewBox="0 0 24 24"><use href="#i-users" /></svg>
-                            Usuários cadastrados
-                        </h2>
-                        <svg class="ico config-box-arrow" id="arrow-usuariosBox" viewBox="0 0 24 24">
-                            <use href="#i-chevron" />
-                        </svg>
-                    </div>
-                    <div class="config-box-body" id="body-usuariosBox">
-                        <p class="box-description">Gerenciamento dos usuários do portal.</p>
-                        <div id="usersList" class="users-list"></div>
+                            <div class="dash-add-form hidden" id="usuario-add-form">
+                                <div class="form-group">
+                                    <input type="text" id="novoUsuario" class="dash-input"
+                                        placeholder="Nome de exibição" maxlength="20">
+                                    <span class="form-hint">Ex: Victor, Maria</span>
+                                </div>
+                                <div class="form-group">
+                                    <input type="email" id="novoEmail" class="dash-input" placeholder="Email"
+                                        maxlength="100">
+                                    <span class="form-hint">Usado para fazer login</span>
+                                </div>
+                                <div class="form-group">
+                                    <input type="password" id="novaSenha" class="dash-input"
+                                        placeholder="Senha temporária" maxlength="20">
+                                    <span class="form-hint">O usuário definirá a própria senha no primeiro acesso</span>
+                                </div>
+                                <div class="form-group">
+                                    <select id="tipoUsuario"></select>
+                                </div>
+                                <div class="dash-add-actions">
+                                    <button class="btn-save-dash" onclick="cadastrarUsuario()">Cadastrar usuário</button>
+                                    <button class="btn-cancel-dash"
+                                        onclick="toggleFormulario('usuario-add-form')">Cancelar</button>
+                                </div>
+                            </div>
+
+                            <div id="usersList" class="users-list"></div>
+                        </div>
+
+                        <!-- ABA: CATEGORIAS -->
+                        <div class="config-panel hidden" id="aba-categorias">
+                            <div class="panel-head">
+                                <div>
+                                    <h2>Categorias de usuário</h2>
+                                    <p>Definem o rótulo e a cor do perfil. A categoria "admin" dá acesso a
+                                        esta tela de configurações.</p>
+                                </div>
+                                <button class="btn-primary" onclick="toggleFormulario('role-add-form')">
+                                    <svg class="ico" viewBox="0 0 24 24"><use href="#i-plus" /></svg>
+                                    Nova categoria
+                                </button>
+                            </div>
+
+                            <div class="dash-add-form hidden" id="role-add-form">
+                                <div class="role-add-row">
+                                    <input type="text" id="role-add-slug" class="dash-input"
+                                        placeholder="Identificador (ex: supervisor)" maxlength="30">
+                                    <input type="text" id="role-add-label" class="dash-input"
+                                        placeholder="Nome de exibição (ex: Supervisor)" maxlength="50">
+                                </div>
+                                <div class="role-add-row">
+                                    <input type="text" id="role-add-icone" class="dash-input role-icone-input"
+                                        placeholder="Ícone" maxlength="5">
+                                    <div class="role-cor-group">
+                                        <label for="role-add-cor">Cor do badge</label>
+                                        <input type="color" id="role-add-cor" value="#4CE0B3">
+                                    </div>
+                                </div>
+                                <div class="dash-add-actions">
+                                    <button class="btn-save-dash" onclick="criarRole()">Adicionar categoria</button>
+                                    <button class="btn-cancel-dash"
+                                        onclick="toggleFormulario('role-add-form')">Cancelar</button>
+                                </div>
+                            </div>
+
+                            <div id="rolesConfigContent"></div>
+                        </div>
+
                     </div>
                 </div>
             </section>

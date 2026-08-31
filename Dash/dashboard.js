@@ -154,13 +154,41 @@ function aplicarPermissoes() {
   }
 }
 
-// ==================== CONFIG BOX ACCORDION ====================
-function toggleConfigBox(id) {
-  const body = document.getElementById(`body-${id}`);
-  const arrow = document.getElementById(`arrow-${id}`);
-  const isOpen = body.classList.contains('open');
-  body.classList.toggle('open', !isOpen);
-  arrow.classList.toggle('open', !isOpen);
+// ==================== CONFIGURAÇÕES: ABAS ====================
+const ABAS_CONFIG = ['secoes', 'paineis', 'usuarios', 'categorias'];
+
+function mostrarAbaConfig(aba) {
+  ABAS_CONFIG.forEach(nome => {
+    document.getElementById(`aba-${nome}`)?.classList.toggle('hidden', nome !== aba);
+    document.getElementById(`navtab-${nome}`)?.classList.toggle('is-active', nome === aba);
+  });
+}
+
+// Formulários de criação ficam recolhidos até o admin pedir
+function toggleFormulario(id) {
+  const form = document.getElementById(id);
+  if (!form) return;
+  const vaiAbrir = form.classList.contains('hidden');
+  form.classList.toggle('hidden', !vaiAbrir);
+  if (vaiAbrir) form.querySelector('input, select')?.focus();
+}
+
+// Números ao lado de cada aba, para não precisar abrir para saber
+function atualizarContadoresConfig() {
+  const totalPaineis = Object.values(dashboardsData)
+    .reduce((soma, lista) => soma + lista.length, 0);
+
+  const contadores = {
+    countSecoes: secoesData.length,
+    countPaineis: totalPaineis,
+    countUsuarios: users.length,
+    countCategorias: rolesData.length
+  };
+
+  Object.entries(contadores).forEach(([id, valor]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = valor;
+  });
 }
 
 // ==================== PESQUISA ====================
@@ -405,7 +433,7 @@ async function cadastrarUsuario() {
     return;
   }
 
-  const btn = document.querySelector('.config-box .btn-primary');
+  const btn = document.querySelector('#usuario-add-form .btn-save-dash');
   btn.disabled = true;
   btn.textContent = 'Cadastrando...';
 
@@ -424,6 +452,7 @@ async function cadastrarUsuario() {
       document.getElementById('novaSenha').value = '';
       document.getElementById('tipoUsuario').value = 'gestor';
 
+      toggleFormulario('usuario-add-form');
       showNotification(`Usuário "${usuario}" cadastrado com sucesso!`, 'success');
       await listarUsuarios();
     } else {
@@ -434,7 +463,7 @@ async function cadastrarUsuario() {
     showNotification('Erro de conexão com o servidor', 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Cadastrar Usuário';
+    btn.textContent = 'Cadastrar usuário';
   }
 }
 
@@ -507,6 +536,8 @@ async function listarUsuarios() {
         </div>
       `;
     }).join('');
+
+    atualizarContadoresConfig();
 
   } catch (error) {
     console.error('Erro ao listar usuários:', error);
@@ -690,6 +721,7 @@ async function carregarRoles() {
     popularSelectsTipo();
     aplicarPermissoes();
     if (tipoUsuario === 'admin') renderizarConfigRoles();
+    atualizarContadoresConfig();
   } catch (error) {
     console.error('Erro ao carregar categorias:', error);
   }
@@ -813,6 +845,7 @@ async function criarRole() {
       document.getElementById('role-add-label').value = '';
       document.getElementById('role-add-icone').value = '';
       document.getElementById('role-add-cor').value = '#607d8b';
+      toggleFormulario('role-add-form');
       showNotification(`Categoria "${label}" criada!`, 'success');
       await carregarRoles();
     } else {
@@ -975,6 +1008,7 @@ async function criarSecao() {
     if (data.sucesso) {
       document.getElementById('secao-add-slug').value = '';
       document.getElementById('secao-add-nome').value = '';
+      toggleFormulario('secao-add-form');
       showNotification(`Seção "${nome}" criada!`, 'success');
       await carregarSecoes();
       await carregarDashboards();
@@ -1110,6 +1144,7 @@ async function carregarSecoes() {
     renderizarMenuSecoes();
     renderizarSecoesConteudo();
     if (tipoUsuario === 'admin') renderizarConfigSecoes();
+    atualizarContadoresConfig();
   } catch (error) {
     console.error('Erro ao carregar seções:', error);
   }
@@ -1182,6 +1217,7 @@ async function carregarDashboards() {
     renderizarInicio();
     renderizarConfigDashboards();
     if (tipoUsuario === 'admin') renderizarConfigSecoes();
+    atualizarContadoresConfig();
 
   } catch (error) {
     console.error('Erro ao carregar dashboards:', error);
