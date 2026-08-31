@@ -4,101 +4,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Car Station - Login</title>
+    <meta name="description"
+        content="Portal de indicadores Car Station — dashboards Power BI de Vendas e Locação com acesso por perfil.">
+    <meta name="theme-color" content="#070F0E">
+    <title>Entrar · Car Station Indicadores</title>
     <link rel="icon" type="image/png" href="logo of.png">
 
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="tokens.css">
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="top-bar">
-        <div class="logo-container">
-            <img src="logo of.png" class="logo" alt="Car Station Logo">
-            <span class="logo-text">Car Station</span>
-        </div>
-    </div>
+    <main class="auth-shell">
 
-    <div class="container">
+        <!-- ============================================================
+             LADO ESQUERDO — O QUE ESTE SISTEMA É
+             ============================================================ -->
+        <section class="showcase">
 
-        <div class="login-box">
+            <header class="brand">
+                <img src="logo of.png" class="brand-mark" alt="">
+                <span class="brand-words">
+                    <span class="brand-name">Car Station</span>
+                    <span class="brand-sub">Indicadores</span>
+                </span>
+            </header>
 
-            <!-- STEP 1: LOGIN -->
-            <div id="step-login">
-                <h2>Car Station Indicadores</h2>
-                <p>Acesse seus dashboards</p>
+            <div class="showcase-main">
 
-                <div class="input-group">
-                    <input type="email" id="user" placeholder=" " required autocomplete="email">
-                    <label for="user">Email</label>
-                </div>
-
-                <div class="input-group password-group">
-                    <input type="password" id="pass" placeholder=" " required autocomplete="current-password">
-                    <label for="pass">Senha</label>
-                    <span class="toggle-password" onclick="togglePassword('pass', 'eyeIcon')" title="Mostrar/ocultar senha">
-                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    </span>
-                </div>
-
-                <div id="error-container"></div>
-
-                <button type="button" id="login-btn" onclick="login()" class="btn-login">
-                    <span id="btn-text">Entrar</span>
-                    <span id="btn-loader" class="loader" style="display: none;"></span>
-                </button>
-
-                <p class="help-text">Use seu email e senha cadastrados</p>
+            <div class="showcase-copy">
+                <p class="eyebrow">Central de Business Intelligence</p>
+                <h1>Os painéis de <span class="nowrap">Power BI</span> da operação, em um só endereço.</h1>
+                <p class="lede">
+                    Vendas e Locação publicados direto do <span class="nowrap">Power BI</span>, com acesso liberado
+                    por perfil — cada gestor entra e vê o que é dele.
+                </p>
             </div>
 
-            <!-- STEP 2: DEFINIR SENHA -->
-            <div id="step-senha" style="display: none;">
-                <h2>Bem-vindo!</h2>
-                <p>Por segurança, crie uma senha pessoal para continuar.</p>
-
-                <div class="input-group password-group">
-                    <input type="password" id="nova-senha" placeholder=" " required autocomplete="new-password">
-                    <label for="nova-senha">Nova senha</label>
-                    <span class="toggle-password" onclick="togglePassword('nova-senha', 'eyeIcon2')" title="Mostrar/ocultar senha">
-                        <svg id="eyeIcon2" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                            <circle cx="12" cy="12" r="3" />
-                        </svg>
-                    </span>
+            <!-- Prévia do produto (decorativa) -->
+            <figure class="preview" aria-hidden="true">
+                <div class="preview-chrome">
+                    <span class="preview-dots"><i></i><i></i><i></i></span>
+                    <span class="preview-tab is-active">Vendas</span>
+                    <span class="preview-tab">Locação</span>
+                    <span class="preview-live"><i></i>ao vivo</span>
                 </div>
 
-                <div class="input-group password-group">
-                    <input type="password" id="confirma-senha" placeholder=" " required autocomplete="new-password">
-                    <label for="confirma-senha">Confirmar senha</label>
-                    <span class="toggle-password" onclick="togglePassword('confirma-senha', 'eyeIcon3')" title="Mostrar/ocultar senha">
-                        <svg id="eyeIcon3" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                            <circle cx="12" cy="12" r="3" />
+                <div class="preview-body">
+                    <div class="kpi-row">
+                        <div class="kpi">
+                            <span class="kpi-label">Faturamento</span>
+                            <strong class="kpi-value">R$ 1,24 M</strong>
+                            <span class="kpi-delta is-up">&#9650; 14,2%</span>
+                        </div>
+                        <div class="kpi">
+                            <span class="kpi-label">Veículos locados</span>
+                            <strong class="kpi-value">87</strong>
+                            <span class="kpi-delta is-up">&#9650; 6,1%</span>
+                        </div>
+                        <div class="kpi">
+                            <span class="kpi-label">Ticket médio</span>
+                            <strong class="kpi-value">R$ 3.190</strong>
+                            <span class="kpi-delta is-down">&#9660; 2,4%</span>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-head">
+                            <span>Receita por mês</span>
+                            <span class="chart-legend"><i></i>2026</span>
+                        </div>
+                        <svg class="chart" viewBox="0 0 320 96" preserveAspectRatio="none" role="presentation">
+                            <defs>
+                                <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#4CE0B3" stop-opacity="0.95" />
+                                    <stop offset="100%" stop-color="#4CE0B3" stop-opacity="0.18" />
+                                </linearGradient>
+                            </defs>
+                            <g class="chart-grid">
+                                <line x1="0" y1="24" x2="320" y2="24" />
+                                <line x1="0" y1="56" x2="320" y2="56" />
+                                <line x1="0" y1="88" x2="320" y2="88" />
+                            </g>
+                            <g class="chart-bars">
+                                <rect x="6" y="54" width="14" height="34" rx="3" />
+                                <rect x="32" y="40" width="14" height="48" rx="3" />
+                                <rect x="58" y="48" width="14" height="40" rx="3" />
+                                <rect x="84" y="30" width="14" height="58" rx="3" />
+                                <rect x="110" y="36" width="14" height="52" rx="3" />
+                                <rect x="136" y="22" width="14" height="66" rx="3" />
+                                <rect x="162" y="28" width="14" height="60" rx="3" />
+                                <rect x="188" y="14" width="14" height="74" rx="3" />
+                                <rect x="214" y="20" width="14" height="68" rx="3" />
+                                <rect x="240" y="8" width="14" height="80" rx="3" />
+                                <rect x="266" y="16" width="14" height="72" rx="3" />
+                                <rect x="292" y="4" width="14" height="84" rx="3" />
+                            </g>
                         </svg>
-                    </span>
+                    </div>
+
+                    <div class="rank-card">
+                        <div class="rank-row">
+                            <span class="rank-name">Matriz</span>
+                            <span class="rank-bar"><i style="width:92%"></i></span>
+                            <span class="rank-val">418 k</span>
+                        </div>
+                        <div class="rank-row">
+                            <span class="rank-name">Filial Norte</span>
+                            <span class="rank-bar"><i style="width:71%"></i></span>
+                            <span class="rank-val">322 k</span>
+                        </div>
+                        <div class="rank-row">
+                            <span class="rank-name">Filial Sul</span>
+                            <span class="rank-bar"><i style="width:54%"></i></span>
+                            <span class="rank-val">245 k</span>
+                        </div>
+                    </div>
                 </div>
+            </figure>
 
-                <div id="error-container-senha"></div>
-
-                <button type="button" id="senha-btn" onclick="definirSenha()" class="btn-login">
-                    <span id="senha-btn-text">Confirmar</span>
-                    <span id="senha-btn-loader" class="loader" style="display: none;"></span>
-                </button>
-
-                <p class="help-text">Mínimo 6 caracteres</p>
             </div>
 
-        </div>
+            <ul class="showcase-facts">
+                <li>Power BI embarcado</li>
+                <li>Permissão por dashboard</li>
+                <li>Sem instalar nada</li>
+            </ul>
 
-    </div>
+        </section>
+
+        <!-- ============================================================
+             LADO DIREITO — FORMULÁRIO
+             ============================================================ -->
+        <section class="auth">
+            <div class="auth-inner">
+
+                <header class="brand brand--compact">
+                    <img src="logo of.png" class="brand-mark" alt="">
+                    <span class="brand-words">
+                        <span class="brand-name">Car Station</span>
+                        <span class="brand-sub">Indicadores</span>
+                    </span>
+                </header>
+
+                <p class="auth-tagline">
+                    Central de indicadores <span class="nowrap">Power BI</span> — Vendas e Locação,
+                    com acesso por perfil.
+                </p>
+
+                <!-- STEP 1: LOGIN -->
+                <div id="step-login" class="step">
+                    <div class="step-head">
+                        <h2>Entrar</h2>
+                        <p>Use o email e a senha cadastrados no portal.</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="user">Email corporativo</label>
+                        <div class="field-control">
+                            <input type="email" id="user" required autocomplete="email"
+                                placeholder="nome@carstation.com.br" autofocus>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="pass">Senha</label>
+                        <div class="field-control">
+                            <input type="password" id="pass" required autocomplete="current-password"
+                                placeholder="Sua senha de acesso">
+                            <button type="button" class="toggle-password" onclick="togglePassword('pass')"
+                                aria-label="Mostrar ou ocultar a senha">
+                                <svg class="ico ico-eye" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="ico ico-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4" />
+                                    <path d="M6.3 6.4A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.6-1.1" />
+                                    <path d="M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                                    <line x1="3" y1="3" x2="21" y2="21" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="error-container" class="error-slot" role="alert" aria-live="polite"></div>
+
+                    <button type="button" id="login-btn" onclick="login()" class="btn btn-primary">
+                        <span id="btn-text">Entrar no portal</span>
+                        <svg class="ico ico-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h13M13 6l6 6-6 6" />
+                        </svg>
+                        <span id="btn-loader" class="loader" style="display: none;"></span>
+                    </button>
+
+                    <p class="hint">
+                        Primeiro acesso? Entre com a senha provisória que o administrador enviou —
+                        o portal vai pedir que você crie a sua.
+                    </p>
+                </div>
+
+                <!-- STEP 2: DEFINIR SENHA -->
+                <div id="step-senha" class="step" style="display: none;">
+                    <div class="step-head">
+                        <span class="step-badge">Primeiro acesso</span>
+                        <h2>Crie sua senha</h2>
+                        <p>Por segurança, a senha provisória precisa ser substituída por uma sua.</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="nova-senha">Nova senha</label>
+                        <div class="field-control">
+                            <input type="password" id="nova-senha" required autocomplete="new-password"
+                                placeholder="Mínimo de 6 caracteres">
+                            <button type="button" class="toggle-password"
+                                onclick="togglePassword('nova-senha')"
+                                aria-label="Mostrar ou ocultar a senha">
+                                <svg class="ico ico-eye" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="ico ico-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4" />
+                                    <path d="M6.3 6.4A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.6-1.1" />
+                                    <path d="M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                                    <line x1="3" y1="3" x2="21" y2="21" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="confirma-senha">Confirmar senha</label>
+                        <div class="field-control">
+                            <input type="password" id="confirma-senha" required autocomplete="new-password"
+                                placeholder="Repita a nova senha">
+                            <button type="button" class="toggle-password"
+                                onclick="togglePassword('confirma-senha')"
+                                aria-label="Mostrar ou ocultar a senha">
+                                <svg class="ico ico-eye" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                                    stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg class="ico ico-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
+                                    aria-hidden="true">
+                                    <path d="M9.9 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4" />
+                                    <path d="M6.3 6.4A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.6-1.1" />
+                                    <path d="M10.6 10.7a2 2 0 0 0 2.8 2.8" />
+                                    <line x1="3" y1="3" x2="21" y2="21" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="error-container-senha" class="error-slot" role="alert" aria-live="polite"></div>
+
+                    <button type="button" id="senha-btn" onclick="definirSenha()" class="btn btn-primary">
+                        <span id="senha-btn-text">Salvar e continuar</span>
+                        <svg class="ico ico-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h13M13 6l6 6-6 6" />
+                        </svg>
+                        <span id="senha-btn-loader" class="loader" style="display: none;"></span>
+                    </button>
+
+                    <p class="hint">A senha precisa ter no mínimo 6 caracteres.</p>
+                </div>
+
+                <footer class="auth-foot">
+                    <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="4" y="10" width="16" height="10" rx="2" />
+                        <path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                    </svg>
+                    Acesso restrito a colaboradores Car Station
+                </footer>
+
+            </div>
+        </section>
+
+    </main>
 
     <script src="script.js"></script>
 </body>

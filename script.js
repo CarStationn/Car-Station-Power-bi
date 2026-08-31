@@ -12,16 +12,15 @@ function clearError(id) {
   document.getElementById(id).innerHTML = '';
 }
 
-function togglePassword(inputId, iconId) {
+function togglePassword(inputId) {
   const input = document.getElementById(inputId);
-  const icon = document.getElementById(iconId);
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.style.opacity = '1';
-  } else {
-    input.type = 'password';
-    icon.style.opacity = '0.6';
-  }
+  const visivel = input.type === 'text';
+
+  // O ícone (olho / olho cortado) é trocado pelo CSS, que observa o type do input.
+  input.type = visivel ? 'password' : 'text';
+
+  const botao = input.parentElement.querySelector('.toggle-password');
+  if (botao) botao.setAttribute('aria-label', visivel ? 'Mostrar a senha' : 'Ocultar a senha');
 }
 
 // ==================== LOGIN ====================

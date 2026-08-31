@@ -1,0 +1,121 @@
+/* =============================================================
+   CAR STATION — DESIGN TOKENS
+   Fonte única de verdade para cor, tipografia, espaço e sombra.
+   Importado por index.html (login) e Dash/dashboard.html.
+   Nada de valor cru (#hex, 14px, 12px) fora deste arquivo.
+   ============================================================= */
+
+:root {
+  /* ---------- MARCA ---------- */
+  --brand:            #4CE0B3;   /* verde-menta Car Station */
+  --brand-strong:     #38C79D;
+  --brand-deep:       #1F8F71;
+  --brand-soft:       rgba(76, 224, 179, 0.12);
+  --brand-softer:     rgba(76, 224, 179, 0.06);
+  --brand-ring:       rgba(76, 224, 179, 0.32);
+
+  /* ---------- SUPERFÍCIES (petróleo escuro) ---------- */
+  --bg:               #070F0E;   /* fundo da página */
+  --surface-1:        #0B1615;   /* painel */
+  --surface-2:        #101F1D;   /* card */
+  --surface-3:        #162A27;   /* card elevado / hover */
+  --surface-input:    #0C1918;
+
+  /* ---------- LINHAS ---------- */
+  --line:             rgba(255, 255, 255, 0.07);
+  --line-strong:      rgba(255, 255, 255, 0.13);
+  --line-brand:       rgba(76, 224, 179, 0.28);
+
+  /* ---------- TEXTO ---------- */
+  --text:             #E8F2EF;   /* principal */
+  --text-muted:       #9BB0AB;   /* secundário */
+  --text-subtle:      #6B807C;   /* terciário / hints */
+  --text-on-brand:    #052019;   /* sobre fundo menta */
+
+  /* ---------- FEEDBACK ---------- */
+  --danger:           #FF7A7A;
+  --danger-bg:        rgba(255, 107, 107, 0.10);
+  --danger-line:      rgba(255, 107, 107, 0.30);
+  --warning:          #F5B970;
+  --info:             #5AA6FF;
+  --success:          var(--brand);
+
+  /* ---------- PERFIS (badges) ---------- */
+  --role-admin:       #FF7A7A;
+  --role-diretor:     #A97BE0;
+  --role-gestor:      #5AA6FF;
+  --role-user:        #9BB0AB;
+
+  /* ---------- TIPOGRAFIA ---------- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-num:  'Inter', ui-monospace, 'SF Mono', 'Cascadia Mono', monospace;
+
+  --text-3xl: 2.25rem;   /* 36px — display */
+  --text-2xl: 1.75rem;   /* 28px — título de tela */
+  --text-xl:  1.375rem;  /* 22px */
+  --text-lg:  1.125rem;  /* 18px */
+  --text-md:  0.9375rem; /* 15px — corpo */
+  --text-sm:  0.875rem;  /* 14px */
+  --text-xs:  0.8125rem; /* 13px */
+  --text-2xs: 0.6875rem; /* 11px — eyebrow / label */
+
+  --leading-tight: 1.15;
+  --leading-snug:  1.35;
+  --leading-normal:1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide:  0.06em;
+  --tracking-caps:  0.12em;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semi:   600;
+  --weight-bold:   700;
+
+  /* ---------- ESPAÇO (base 4px) ---------- */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---------- RAIO ---------- */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 999px;
+
+  /* ---------- SOMBRA (discreta, sem drama) ---------- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --shadow-brand: 0 6px 24px rgba(76, 224, 179, 0.18);
+
+  /* ---------- MOVIMENTO ---------- */
+  --ease-out: cubic-bezier(0.22, 0.8, 0.28, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 420ms;
+
+  /* ---------- LAYOUT ---------- */
+  --header-h:  64px;
+  --sidebar-w: 250px;
+  --focus-ring: 0 0 0 3px var(--brand-ring);
+}
+
+/* Acessibilidade: nenhum movimento para quem pediu para não ter. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+  }
+}
