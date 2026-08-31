@@ -14,16 +14,27 @@
   --brand-softer:     rgba(76, 224, 179, 0.06);
   --brand-ring:       rgba(76, 224, 179, 0.32);
 
-  /* ---------- SUPERFÍCIES (petróleo escuro) ---------- */
-  --bg:               #070F0E;   /* fundo da página */
-  --surface-1:        #0B1615;   /* painel */
-  --surface-2:        #101F1D;   /* card */
-  --surface-3:        #162A27;   /* card elevado / hover */
-  --surface-input:    #0C1918;
+  /* ---------- SUPERFÍCIES (petróleo esverdeado) ----------
+     Tom da casa, não preto neutro: todas as superfícies puxam
+     para o verde-petróleo do Car Station. */
+  --bg:               #071A1C;   /* fundo da página */
+  --surface-1:        #0B2427;   /* sidebar, header, painel */
+  --surface-2:        #0F2E31;   /* card */
+  --surface-3:        #16393D;   /* card elevado / hover */
+  --surface-input:    #061618;
+
+  /* ---------- CORES DE SEÇÃO ---------- */
+  --secao-vendas:     #4CE0B3;
+  --secao-locacao:    #5AA6FF;
+  --secao-padrao:     #9BB0AB;
+
+  /* ---------- BRILHOS ---------- */
+  --glow-brand:       radial-gradient(120% 90% at 10% 0%, rgba(76, 224, 179, 0.10), transparent 60%);
+  --glow-header:      radial-gradient(80% 300% at 0% 50%, rgba(76, 224, 179, 0.07), transparent 70%);
 
   /* ---------- LINHAS ---------- */
-  --line:             rgba(255, 255, 255, 0.07);
-  --line-strong:      rgba(255, 255, 255, 0.13);
+  --line:             rgba(255, 255, 255, 0.09);
+  --line-strong:      rgba(255, 255, 255, 0.16);
   --line-brand:       rgba(76, 224, 179, 0.28);
 
   /* ---------- TEXTO ---------- */
@@ -97,6 +108,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.35);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 10px 28px rgba(0, 0, 0, 0.40);
   --shadow-brand: 0 6px 24px rgba(76, 224, 179, 0.18);
 
   /* ---------- MOVIMENTO ---------- */

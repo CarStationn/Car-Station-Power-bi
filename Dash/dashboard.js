@@ -898,7 +898,29 @@ function renderizarInicio() {
   if (resumo) {
     resumo.textContent = cards.length === 0
       ? 'Nenhum painel liberado para o seu acesso ainda.'
-      : `${cards.length} ${cards.length === 1 ? 'painel disponível' : 'painéis disponíveis'} para você.`;
+      : 'Selecione um painel para abrir.';
+  }
+
+  // Resumo com dados reais do proprio portal - nada inventado
+  const stats = document.getElementById('inicioStats');
+  if (stats) {
+    const secoesComPainel = SECOES_INFO.filter(
+      ({ id }) => (dashboardsData[id] || []).some(d => d.iframe_url)
+    ).length;
+    const perfil = rolesData.find(r => r.slug === tipoUsuario);
+    stats.innerHTML = `
+      <div class="stat">
+        <span class="stat-num">${cards.length}</span>
+        <span class="stat-label">${cards.length === 1 ? 'painel' : 'painéis'}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">${secoesComPainel}</span>
+        <span class="stat-label">${secoesComPainel === 1 ? 'seção' : 'seções'}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num stat-num--perfil">${escapeHtml(perfil ? perfil.label : tipoUsuario)}</span>
+        <span class="stat-label">seu perfil</span>
+      </div>`;
   }
 
   if (cards.length === 0) {
@@ -914,6 +936,7 @@ function renderizarInicio() {
   grid.innerHTML = cards.map(d => `
     <button type="button" class="dash-card dash-card--${d.secao}"
       onclick="abrirDashboardItem(${d.id}, '${d.secao}'); abrirMenuSection('${d.secao}')">
+      <span class="dash-card-watermark">${ico(d.iconeSecao)}</span>
       <span class="dash-card-tag">${ico(d.iconeSecao)}${d.secaoNome}</span>
       <span class="dash-card-name">${escapeHtml(d.nome)}</span>
       <span class="dash-card-go">Abrir painel ${ico('arrow')}</span>

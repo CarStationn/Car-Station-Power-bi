@@ -111,7 +111,7 @@ textarea {
   flex-shrink: 0;
   width: var(--sidebar-w);
   padding: var(--space-5) var(--space-3) var(--space-4);
-  background: var(--surface-1);
+  background: var(--glow-brand), var(--surface-1);
   border-right: 1px solid var(--line);
   overflow-y: auto;
   z-index: 100;
@@ -237,6 +237,7 @@ textarea {
   position: relative;
   background: var(--brand-soft);
   color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line-brand);
 }
 
 .menu-item.active::before {
@@ -406,7 +407,7 @@ textarea {
   flex-shrink: 0;
   height: var(--header-h);
   padding: 0 var(--space-6);
-  background: var(--surface-1);
+  background: var(--glow-header), var(--surface-1);
   border-bottom: 1px solid var(--line);
 }
 
@@ -620,7 +621,61 @@ textarea {
 }
 
 .inicio-welcome {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-6);
   margin-bottom: var(--space-6);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.inicio-stats {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 96px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-num {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semi);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+  color: var(--brand);
+  line-height: 1.1;
+}
+
+.stat-num--perfil {
+  font-size: var(--text-md);
+  color: var(--text);
+}
+
+.stat-label {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  color: var(--text-subtle);
+}
+
+.inicio-welcome h1 {
+  font-size: var(--text-3xl);
+}
+
+/* O nome do usuario recebe a cor da marca */
+.inicio-welcome h1 #welcomeName {
+  color: var(--brand);
 }
 
 /* =============================================================
@@ -628,45 +683,83 @@ textarea {
    ============================================================= */
 .dash-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
   gap: var(--space-4);
   align-content: start;
 }
 
+/* Cada card herda a cor da sua secao em --secao */
 .dash-card {
+  --secao: var(--secao-padrao);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--space-3);
   padding: var(--space-5);
-  min-height: 132px;
+  min-height: 164px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
-  background: var(--surface-2);
+  background:
+    radial-gradient(120% 100% at 100% 0%,
+      color-mix(in srgb, var(--secao) 9%, transparent), transparent 62%),
+    var(--surface-2);
+  box-shadow: var(--shadow-card);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-out),
-              background-color var(--dur-fast) var(--ease-out);
+  transition: transform var(--dur-base) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-base) var(--ease-out);
+}
+
+.dash-card--vendas  { --secao: var(--secao-vendas); }
+.dash-card--locacao { --secao: var(--secao-locacao); }
+
+/* Faixa da cor da secao no topo */
+.dash-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--secao),
+    color-mix(in srgb, var(--secao) 25%, transparent));
 }
 
 .dash-card:hover {
-  border-color: var(--line-brand);
-  background: var(--surface-3);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--secao) 45%, transparent);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Icone da secao como marca-d'agua: enfeite, nunca dado */
+.dash-card-watermark {
+  position: absolute;
+  right: -14px;
+  bottom: -18px;
+  color: var(--secao);
+  opacity: 0.06;
+  pointer-events: none;
+}
+
+.dash-card-watermark .ico {
+  width: 96px;
+  height: 96px;
 }
 
 .dash-card-tag {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 3px var(--space-2);
-  border: 1px solid var(--line);
+  padding: 3px var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--secao) 30%, transparent);
   border-radius: var(--radius-full);
-  background: var(--surface-1);
+  background: color-mix(in srgb, var(--secao) 12%, transparent);
   font-size: var(--text-2xs);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semi);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
-  color: var(--text-subtle);
+  color: var(--secao);
 }
 
 .dash-card-tag .ico {
@@ -675,12 +768,12 @@ textarea {
 }
 
 .dash-card:hover .dash-card-tag {
-  color: var(--brand);
-  border-color: var(--line-brand);
+  background: color-mix(in srgb, var(--secao) 20%, transparent);
 }
 
 .dash-card-name {
-  font-size: var(--text-md);
+  position: relative;
+  font-size: var(--text-lg);
   font-weight: var(--weight-semi);
   line-height: var(--leading-snug);
   letter-spacing: var(--tracking-tight);
@@ -688,6 +781,7 @@ textarea {
 }
 
 .dash-card-go {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -705,7 +799,7 @@ textarea {
 }
 
 .dash-card:hover .dash-card-go {
-  color: var(--brand);
+  color: var(--secao);
 }
 
 .dash-card:hover .dash-card-go .ico {
@@ -800,6 +894,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: var(--surface-1);
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
