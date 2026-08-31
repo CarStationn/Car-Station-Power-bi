@@ -39,6 +39,14 @@ let confirmacaoPendente = null;
 let users = [];
 let rolesData = [];
 
+// Devolve um <svg> apontando para o sprite definido no dashboard.html.
+// Substitui os emojis que eram usados como iconografia.
+function ico(nome, classe = '') {
+  return `<svg class="ico ${classe}" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${nome}"/></svg>`;
+}
+
+const ICONE_SECAO = { vendas: 'chart', locacao: 'car' };
+
 function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -114,7 +122,7 @@ function aplicarPermissoes() {
   const role = rolesData.find(r => r.slug === tipoUsuario);
   if (role) {
     userBadge.textContent = role.label;
-    userBadge.style.backgroundColor = role.cor;
+    userBadge.style.setProperty('--role-cor', role.cor);
   } else {
     userBadge.textContent = tipoUsuario;
   }
@@ -140,7 +148,6 @@ function pesquisarDashboard(termo) {
     return;
   }
 
-  const ICONES = { vendas: '📊', locacao: '🚗' };
   const encontrados = [];
 
   Object.entries(dashboardsData).forEach(([secao, dashes]) => {
@@ -155,7 +162,10 @@ function pesquisarDashboard(termo) {
     resultados.innerHTML = '<div class="search-result-empty">Nenhum dashboard encontrado</div>';
   } else {
     resultados.innerHTML = encontrados.map(d =>
-      `<div class="search-result-item" onclick="selecionarDashboardBusca(${d.id}, '${d.secao}')">${ICONES[d.secao]} ${d.nome}</div>`
+      `<div class="search-result-item" onclick="selecionarDashboardBusca(${d.id}, '${d.secao}')">
+        ${ico(ICONE_SECAO[d.secao] || 'grid')}
+        <span>${escapeHtml(d.nome)}</span>
+      </div>`
     ).join('');
   }
 
@@ -196,8 +206,8 @@ function mostrarSecao(secaoId) {
 
 // ==================== SIDEBAR ACCORDION ====================
 const SECOES_INFO = [
-  { id: 'vendas', nome: 'Vendas', icone: '📊' },
-  { id: 'locacao', nome: 'Locação', icone: '🚗' }
+  { id: 'vendas', nome: 'Vendas', ico: 'chart' },
+  { id: 'locacao', nome: 'Locação', ico: 'car' }
 ];
 
 function abrirMenuSection(secao) {
@@ -254,7 +264,9 @@ function renderizarSubmenus() {
       submenu.innerHTML = '<div class="menu-submenu-empty">Nenhum dashboard</div>';
     } else {
       submenu.innerHTML = dashes.map(d =>
-        `<a class="menu-subitem" id="subitem-${d.id}" onclick="abrirDashboardItem(${d.id}, '${secao}')">→ ${d.nome}</a>`
+        `<a class="menu-subitem" id="subitem-${d.id}" onclick="abrirDashboardItem(${d.id}, '${secao}')">
+          <span class="menu-subitem-dot"></span>${escapeHtml(d.nome)}
+        </a>`
       ).join('');
     }
   });
@@ -275,16 +287,16 @@ function toggleMobileMenu() {
     <div id="mobile-menu-panel">
       <div class="mobile-menu-header">
         <span>Car Station</span>
-        <button onclick="toggleMobileMenu()">✕</button>
+        <button onclick="toggleMobileMenu()" aria-label="Fechar menu">${ico('close')}</button>
       </div>
       <nav class="mobile-menu-nav">
-        <a onclick="toggleMobileMenu(); mostrarSecao('inicio')">🏠 Início</a>
-        <a onclick="toggleMobileMenu(); toggleMenuSection('vendas')">📊 Vendas</a>
-        <a onclick="toggleMobileMenu(); toggleMenuSection('locacao')">🚗 Locação</a>
+        <a onclick="toggleMobileMenu(); mostrarSecao('inicio')">${ico('home')} Início</a>
+        <a onclick="toggleMobileMenu(); toggleMenuSection('vendas')">${ico('chart')} Vendas</a>
+        <a onclick="toggleMobileMenu(); toggleMenuSection('locacao')">${ico('car')} Locação</a>
       </nav>
       <div class="mobile-menu-bottom">
-        <a onclick="toggleMobileMenu(); mostrarSecao('configuracoes')">⚙️ Configurações</a>
-        <button onclick="confirmarSair()">🚪 Sair</button>
+        <a onclick="toggleMobileMenu(); mostrarSecao('configuracoes')">${ico('settings')} Configurações</a>
+        <button onclick="confirmarSair()">${ico('logout')} Sair</button>
       </div>
     </div>
     <div id="mobile-menu-backdrop" onclick="toggleMobileMenu()"></div>
@@ -305,7 +317,8 @@ function toggleMobileMenu() {
     width: '75vw',
     maxWidth: '280px',
     height: '100%',
-    background: 'linear-gradient(180deg, #0f3d3e 0%, #062f2f 100%)',
+    background: 'var(--surface-1)',
+    borderRight: '1px solid var(--line)',
     display: 'flex',
     flexDirection: 'column',
     padding: '0',
@@ -317,7 +330,7 @@ function toggleMobileMenu() {
   const backdrop = mobileMenu.querySelector('#mobile-menu-backdrop');
   Object.assign(backdrop.style, {
     flex: '1',
-    background: 'rgba(0,0,0,0.5)',
+    background: 'rgba(0,0,0,0.6)',
   });
 
   document.body.appendChild(mobileMenu);
@@ -421,7 +434,7 @@ async function listarUsuarios() {
     if (users.length === 0) {
       container.innerHTML = `
         <div class="empty-list">
-          <div class="empty-list-icon">👥</div>
+          <span class="empty-list-icon">${ico('users')}</span>
           <p>Nenhum usuário cadastrado</p>
         </div>
       `;
@@ -437,8 +450,11 @@ async function listarUsuarios() {
         <div class="user-item">
           <div class="user-item-info">
             <div class="user-item-main">
-              <span class="user-item-name">👤 ${escapeHtml(u.username)}</span>
-              <span class="user-item-type" style="background:${getRoleCor(u.tipo)}">
+              <span class="user-item-name">
+                <span class="user-item-avatar">${escapeHtml((u.username || '?').charAt(0).toUpperCase())}</span>
+                ${escapeHtml(u.username)}
+              </span>
+              <span class="user-item-type" style="--role-cor:${getRoleCor(u.tipo)}">
                 ${getRoleLabel(u.tipo)}
               </span>
             </div>
@@ -446,11 +462,11 @@ async function listarUsuarios() {
           </div>
           <div class="user-item-actions">
             <button class="btn-edit" onclick="abrirEditarUsuario(${u.id}, '${u.username}', '${u.tipo}')">
-              ✏️ Editar
+              ${ico('edit')} Editar
             </button>
             ${podeRemover ? `
               <button class="btn-delete" onclick="confirmarRemoverUsuario(${u.id}, '${u.username}')">
-                🗑️ Remover
+                ${ico('trash')} Remover
               </button>
             ` : ''}
           </div>
@@ -469,7 +485,7 @@ let editandoUsuarioId = null;
 
 async function abrirEditarUsuario(id, username, tipo) {
   editandoUsuarioId = id;
-  document.getElementById('editUserName').textContent = `👤 ${username}`;
+  document.getElementById('editUserName').textContent = `${username}`;
   document.getElementById('editUserUsername').value = username;
   document.getElementById('editUserPassword').value = '';
   document.getElementById('editUserTipo').value = tipo;
@@ -498,11 +514,10 @@ async function abrirEditarUsuario(id, username, tipo) {
       if (todosOsDashes.length === 0) {
         checklist.innerHTML = '<p style="font-size:12px;color:#999;font-style:italic;">Nenhum dashboard cadastrado ainda</p>';
       } else {
-        const ICONES = { vendas: '📊', locacao: '🚗' };
         checklist.innerHTML = todosOsDashes.map(d => `
           <label class="permissao-item">
             <input type="checkbox" value="${d.id}" ${permitidos.includes(d.id) ? 'checked' : ''}>
-            <span>${ICONES[d.secao] || '📋'} ${d.nome}</span>
+            <span>${ico(ICONE_SECAO[d.secao] || 'grid')} ${escapeHtml(d.nome)}</span>
           </label>
         `).join('');
       }
@@ -868,22 +883,42 @@ async function carregarDashboards() {
 
 // ==================== TELA INICIAL ====================
 function renderizarInicio() {
-  SECOES_INFO.forEach(({ id: secao }) => {
-    const container = document.getElementById(`inicio-list-${secao}`);
-    if (!container) return;
+  const grid = document.getElementById('dashGrid');
+  const resumo = document.getElementById('inicioResumo');
+  if (!grid) return;
 
-    const dashes = (dashboardsData[secao] || []).filter(d => d.iframe_url);
-
-    if (dashes.length === 0) {
-      container.innerHTML = '<div class="inicio-empty">Nenhum dashboard disponível</div>';
-    } else {
-      container.innerHTML = dashes.map(d =>
-        `<div class="inicio-dash-item" onclick="abrirDashboardItem(${d.id}, '${secao}'); abrirMenuSection('${secao}')">
-          → ${d.nome}
-        </div>`
-      ).join('');
-    }
+  // Achata as seções numa lista única de painéis com URL configurada
+  const cards = [];
+  SECOES_INFO.forEach(({ id: secao, nome, ico: iconeSecao }) => {
+    (dashboardsData[secao] || [])
+      .filter(d => d.iframe_url)
+      .forEach(d => cards.push({ ...d, secao, secaoNome: nome, iconeSecao }));
   });
+
+  if (resumo) {
+    resumo.textContent = cards.length === 0
+      ? 'Nenhum painel liberado para o seu acesso ainda.'
+      : `${cards.length} ${cards.length === 1 ? 'painel disponível' : 'painéis disponíveis'} para você.`;
+  }
+
+  if (cards.length === 0) {
+    grid.innerHTML = `
+      <div class="dash-grid-empty">
+        <span class="empty-list-icon">${ico('grid')}</span>
+        <h2>Nenhum painel por aqui</h2>
+        <p>Assim que um dashboard do Power BI for liberado para o seu perfil, ele aparece nesta tela.</p>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = cards.map(d => `
+    <button type="button" class="dash-card dash-card--${d.secao}"
+      onclick="abrirDashboardItem(${d.id}, '${d.secao}'); abrirMenuSection('${d.secao}')">
+      <span class="dash-card-tag">${ico(d.iconeSecao)}${d.secaoNome}</span>
+      <span class="dash-card-name">${escapeHtml(d.nome)}</span>
+      <span class="dash-card-go">Abrir painel ${ico('arrow')}</span>
+    </button>
+  `).join('');
 }
 
 // ==================== CONFIG PANEL (ADMIN) ====================
@@ -891,13 +926,13 @@ function renderizarConfigDashboards() {
   const container = document.getElementById('dashConfigContent');
   if (!container || tipoUsuario !== 'admin') return;
 
-  container.innerHTML = SECOES_INFO.map(({ id: secao, nome, icone }) => {
+  container.innerHTML = SECOES_INFO.map(({ id: secao, nome, ico: iconeSecao }) => {
     const dashes = dashboardsData[secao] || [];
     return `
       <div class="dash-config-section">
         <div class="dash-config-section-header">
-          <span>${icone} ${nome}</span>
-          <button class="btn-add-dash" onclick="toggleAddForm('${secao}')">+ Adicionar</button>
+          <span>${ico(iconeSecao)} ${nome}</span>
+          <button class="btn-add-dash" onclick="toggleAddForm('${secao}')">${ico('plus')} Adicionar</button>
         </div>
         <div class="dash-list" id="dash-list-${secao}">
           ${dashes.length === 0
@@ -906,9 +941,11 @@ function renderizarConfigDashboards() {
               <div class="dash-list-item" id="dash-item-${d.id}">
                 <div class="dash-list-item-info">
                   <span class="dash-list-item-nome">${d.nome}</span>
-                  <span class="dash-list-item-status">${d.iframe_url ? '✓ URL configurada' : '⚠ Sem URL'}</span>
+                  <span class="dash-list-item-status ${d.iframe_url ? 'is-ok' : 'is-warn'}">
+                    ${d.iframe_url ? ico('check') + 'URL configurada' : ico('alert') + 'Sem URL'}
+                  </span>
                 </div>
-                <div style="display:flex;gap:8px;">
+                <div class="dash-list-item-actions">
                   <button class="btn-edit-dash" onclick="abrirEditarDash(${d.id}, '${escapeHtml(d.nome)}', '${escapeHtml(d.iframe_url || '')}', '${secao}')">Editar</button>
                   <button class="btn-remove-dash" onclick="confirmarDeletarDashboard(${d.id}, '${d.nome}', '${secao}')">Remover</button>
                 </div>
@@ -1095,6 +1132,9 @@ window.addEventListener('DOMContentLoaded', async function () {
   document.getElementById('username').textContent = usuarioLogado;
   const welcomeEl = document.getElementById('welcomeName');
   if (welcomeEl) welcomeEl.textContent = usuarioLogado;
+
+  const avatarEl = document.getElementById('userAvatar');
+  if (avatarEl) avatarEl.textContent = (usuarioLogado || '?').charAt(0).toUpperCase();
 
   // Aplicar permissões
   aplicarPermissoes();
