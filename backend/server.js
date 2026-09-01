@@ -16,6 +16,14 @@ const { authMiddleware } = require('./src/middleware/auth');
 const app = express();
 
 // ==================== SEGURANÇA ====================
+// O Render serve a aplicação atrás de um proxy. Sem isto o Express lê o IP do
+// proxy em vez do IP real, e o rate limit do login passa a contar as tentativas
+// de todos os usuários num balde só — um atacante estouraria a cota e deixaria
+// todo mundo sem conseguir entrar.
+// O valor é 1 (confia só no primeiro salto), e não `true`: confiar na cadeia
+// inteira permitiria forjar o IP pelo cabeçalho X-Forwarded-For.
+app.set('trust proxy', 1);
+
 app.use(helmet());
 
 const origensPermitidas = process.env.CORS_ORIGIN
