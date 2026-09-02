@@ -42,6 +42,22 @@ O **Car Station Indicadores** centraliza dashboards do Power BI em um portal com
 
 ---
 
+## Onde roda hoje
+
+| Camada   | Serviço  | Endereço                      |
+|----------|----------|-------------------------------|
+| Frontend | Vercel   | `car-station-rho.vercel.app`  |
+| Backend  | Render   | `car-station.onrender.com`    |
+| Banco    | Supabase | PostgreSQL gerenciado         |
+
+O endereço da API fica em **`config.js`, na raiz** — é o único arquivo a editar ao
+trocar de servidor. Ele é carregado tanto pela tela de login quanto pelo portal.
+
+> **Migrando para servidor próprio?** Existe um roteiro completo de migração
+> (banco, systemd, Nginx, HTTPS, firewall e verificação). Peça o link à equipe.
+
+---
+
 ## Pré-requisitos
 
 - [Node.js](https://nodejs.org/) v18 ou superior
@@ -54,23 +70,21 @@ O **Car Station Indicadores** centraliza dashboards do Power BI em um portal com
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/car-station-indicadores.git
-cd car-station-indicadores
+git clone https://github.com/CarStationn/Car-Station-Power-bi.git
+cd Car-Station-Power-bi
 ```
 
 ### 2. Configure as variáveis de ambiente
 
-Crie o arquivo `backend/.env` com base no exemplo abaixo:
+Copie `backend/.env.example` para `backend/.env` e preencha. O arquivo de exemplo
+explica cada variável, inclusive como gerar o `JWT_SECRET`.
 
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=seu_usuario_postgres
-DB_PASSWORD=sua_senha_postgres
-DB_NAME=nome_do_banco
-JWT_SECRET=escolha_uma_chave_secreta_aqui
-PORT=3001
+```bash
+cp backend/.env.example backend/.env
 ```
+
+> O `.env` nunca vai para o Git. Se precisar dos valores de produção, peça a quem
+> administra o ambiente — não os copie de prints nem de mensagens.
 
 ### 3. Instale as dependências e suba o servidor
 

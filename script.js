@@ -1,4 +1,4 @@
-const API = 'https://car-station.onrender.com/api';
+const API = window.API_BASE_URL || 'http://localhost:3001/api';
 let tokenTemporario = null;
 
 // ==================== UI ====================
