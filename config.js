@@ -11,9 +11,11 @@
 // A integração do Vercel com o GitHub ficou apontando só para a conta
 // pessoal antiga depois da transferência do repositório para a
 // organização CarStationn, e parou de publicar deploys novos sem
-// avisar. Reconectada em 14/09/2026 — este comentário também serve
-// para confirmar, pela data do deploy publicado, que a conexão
-// realmente voltou a acompanhar os commits do main.
+// avisar. Um primeiro "reconectar" em 14/09/2026 não bastou (o painel
+// do Vercel continuou preso na conta antiga em outra tela); refeito
+// via desconectar + reconectar de verdade, no mesmo dia. Este
+// comentário também serve para confirmar, pela data do deploy
+// publicado, que a conexão realmente voltou a acompanhar o main.
 // ============================================================
 
 window.API_BASE_URL = 'https://car-station.onrender.com/api';
