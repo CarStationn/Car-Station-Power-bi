@@ -34,6 +34,13 @@ async function criarUsuario(req, res) {
             });
         }
 
+        if (password.length < 6) {
+            return res.status(400).json({
+                sucesso: false,
+                mensagem: 'Senha deve ter no mínimo 6 caracteres',
+            });
+        }
+
         const roleValida = await query('SELECT id FROM roles WHERE slug = $1', [tipo]);
         if (roleValida.rows.length === 0) {
             return res.status(400).json({ sucesso: false, mensagem: 'Tipo inválido' });
@@ -167,10 +174,10 @@ async function editarUsuario(req, res) {
         }
 
         if (password) {
-            if (password.length < 3) {
+            if (password.length < 6) {
                 return res.status(400).json({
                     sucesso: false,
-                    mensagem: 'Senha deve ter no mínimo 3 caracteres',
+                    mensagem: 'Senha deve ter no mínimo 6 caracteres',
                 });
             }
             const senhaHasheada = await bcrypt.hash(password, 10);

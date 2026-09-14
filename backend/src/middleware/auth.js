@@ -1,7 +1,13 @@
 const jwt = require('jsonwebtoken');
+const { query } = require('../config/database');
 
 // ==================== VERIFICAR TOKEN ====================
-function authMiddleware(req, res, next) {
+// Alem de validar a assinatura, reconsulta o usuario no banco a cada
+// requisicao e usa o tipo ATUAL dele, em vez do que estava gravado no
+// token no momento do login. Sem isso, deletar um usuario ou rebaixar
+// um admin nao surtia efeito enquanto o token de 7 dias continuasse
+// valido — a conta continuava com acesso mesmo apos ser removida.
+async function authMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
@@ -15,7 +21,21 @@ function authMiddleware(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.usuario = decoded;
+
+        const resultado = await query(
+            'SELECT id, username, tipo FROM users WHERE id = $1',
+            [decoded.id]
+        );
+
+        if (resultado.rows.length === 0) {
+            return res.status(401).json({
+                sucesso: false,
+                mensagem: 'Token inválido'
+            });
+        }
+
+        // Sempre os dados atuais do banco — nunca o que veio no token
+        req.usuario = resultado.rows[0];
         next();
     } catch (error) {
         return res.status(401).json({
