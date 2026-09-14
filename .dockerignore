@@ -1,0 +1,12 @@
+# Contexto da imagem web: só os arquivos do frontend entram.
+backend
+.git
+.github
+.vscode
+node_modules
+*.md
+Dockerfile*
+docker-compose.yml
+nginx.conf
+.env
+.env.example

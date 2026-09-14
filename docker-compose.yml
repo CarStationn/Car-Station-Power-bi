@@ -1,0 +1,78 @@
+# ============================================================
+# Portal Car Station — pilha completa em três containers.
+#
+#   web  Nginx: arquivos estáticos + repasse de /api
+#   api  Node/Express: autenticação, permissões, dados
+#   db   PostgreSQL: usuários, seções, painéis, permissões
+#
+# Só o "web" publica porta no host. O cloudflared aponta para ele.
+# Configuração em .env (copie de .env.example).
+#
+#   docker compose up -d --build
+#   docker compose logs -f api
+# ============================================================
+
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: carstation-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      # Evita que o locale do container mude a ordenação de texto
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    volumes:
+      - carstation-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - carstation
+
+  api:
+    build:
+      context: ./backend
+    container_name: carstation-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Sobrescreve o .env: dentro da rede do Docker o banco atende
+      # pelo nome do serviço, não por IP.
+      DB_HOST: db
+      DB_PORT: 5432
+      PORT: 3001
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - carstation
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: carstation-web
+    restart: unless-stopped
+    ports:
+      # Só no localhost do host: quem expõe para fora é o cloudflared.
+      # Para publicar direto na rede, troque para "8095:80".
+      - "127.0.0.1:8095:80"
+    depends_on:
+      - api
+    networks:
+      - carstation
+
+volumes:
+  carstation-db:
+    name: carstation-db
+
+networks:
+  carstation:
+    name: carstation

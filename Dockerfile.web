@@ -1,0 +1,15 @@
+# ============================================================
+# Frontend do Portal Car Station — Nginx servindo arquivos
+# estáticos e repassando /api para o container da API.
+# O que entra na imagem é filtrado pelo .dockerignore.
+# ============================================================
+FROM nginx:alpine
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY . /usr/share/nginx/html/
+
+# Rede de segurança: se algum arquivo indevido escapar do
+# .dockerignore, ele não fica publicado.
+RUN rm -rf /usr/share/nginx/html/backend \
+           /usr/share/nginx/html/nginx.conf \
+           /usr/share/nginx/html/Dockerfile.web
