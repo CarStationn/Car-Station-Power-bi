@@ -77,6 +77,14 @@ function escapeHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// Para valores inseridos dentro de onclick="fn('valor')": um apostrofo no
+// valor fecha a string JS ali mesmo, ANTES do HTML ser interpretado, entao
+// escapeHtml (que so cuida de & < > ") nao basta. Escapa \ e ' no nivel JS
+// primeiro, depois aplica escapeHtml para o atributo HTML por fora.
+function escAttr(str) {
+  return escapeHtml(String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'"));
+}
+
 // ==================== NOTIFICAÇÕES (TOAST) ====================
 function showNotification(message, type = 'success') {
   const notification = document.getElementById('notification');
@@ -352,9 +360,23 @@ function toggleMobileMenu() {
       </div>
       <nav class="mobile-menu-nav">
         <a onclick="toggleMobileMenu(); mostrarSecao('inicio')">${ico('home')} Início</a>
-        ${SECOES_INFO.map(({ id, nome, ico: icone }) =>
-          `<a onclick="toggleMobileMenu(); mostrarSecao('${id}')">${ico(icone)} ${escapeHtml(nome)}</a>`
-        ).join('')}
+        ${SECOES_INFO.map(({ id, nome, ico: icone }) => {
+          // No desktop, escolher um painel é seção -> submenu -> item (dois cliques).
+          // Aqui os painéis já vêm abertos dentro do próprio grupo: tocar na seção,
+          // sem depois poder escolher um painel específico, levava a uma tela vazia.
+          const dashes = dashboardsData[id] || [];
+          const itens = dashes.length
+            ? dashes.map(d => `
+                <a class="mobile-menu-subitem" onclick="toggleMobileMenu(); abrirDashboardItem(${d.id}, '${id}')">
+                  ${escapeHtml(d.nome)}
+                </a>`).join('')
+            : '<span class="mobile-menu-subitem-empty">Nenhum dashboard</span>';
+          return `
+            <div class="mobile-menu-group">
+              <span class="mobile-menu-group-title">${ico(icone)} ${escapeHtml(nome)}</span>
+              ${itens}
+            </div>`;
+        }).join('')}
       </nav>
       <div class="mobile-menu-bottom">
         <a onclick="toggleMobileMenu(); mostrarSecao('configuracoes')">${ico('settings')} Configurações</a>
@@ -517,18 +539,18 @@ async function listarUsuarios() {
                 <span class="user-item-avatar">${escapeHtml((u.username || '?').charAt(0).toUpperCase())}</span>
                 ${escapeHtml(u.username)}
               </span>
-              <span class="user-item-type" style="--role-cor:${getRoleCor(u.tipo)}">
-                ${getRoleLabel(u.tipo)}
+              <span class="user-item-type" style="--role-cor:${escapeHtml(getRoleCor(u.tipo))}">
+                ${escapeHtml(getRoleLabel(u.tipo))}
               </span>
             </div>
-            <span class="user-item-login">${u.email ? u.email + ' · ' : ''}Último acesso: ${ultimoLogin}</span>
+            <span class="user-item-login">${u.email ? escapeHtml(u.email) + ' · ' : ''}Último acesso: ${ultimoLogin}</span>
           </div>
           <div class="user-item-actions">
-            <button class="btn-edit" onclick="abrirEditarUsuario(${u.id}, '${u.username}', '${u.tipo}')">
+            <button class="btn-edit" onclick="abrirEditarUsuario(${u.id}, '${escAttr(u.username)}', '${escAttr(u.tipo)}')">
               ${ico('edit')} Editar
             </button>
             ${podeRemover ? `
-              <button class="btn-delete" onclick="confirmarRemoverUsuario(${u.id}, '${u.username}')">
+              <button class="btn-delete" onclick="confirmarRemoverUsuario(${u.id}, '${escAttr(u.username)}')">
                 ${ico('trash')} Remover
               </button>
             ` : ''}
@@ -696,7 +718,7 @@ function popularSelectsTipo(tipoSelecionado) {
     if (!select) return;
     const valorAtual = tipoSelecionado || select.value;
     select.innerHTML = rolesData.map(r =>
-      `<option value="${r.slug}" ${r.slug === valorAtual ? 'selected' : ''}>${r.icone} ${r.label}</option>`
+      `<option value="${escapeHtml(r.slug)}" ${r.slug === valorAtual ? 'selected' : ''}>${escapeHtml(r.icone)} ${escapeHtml(r.label)}</option>`
     ).join('');
   });
 }
@@ -740,15 +762,15 @@ function renderizarConfigRoles() {
     <div class="dash-list-item" id="role-item-${r.id}">
       <div class="dash-list-item-info">
         <span class="dash-list-item-nome">
-          <span class="role-cor-swatch" style="background:${r.cor}"></span>
-          ${r.icone} ${r.label}
+          <span class="role-cor-swatch" style="background:${escapeHtml(r.cor)}"></span>
+          ${escapeHtml(r.icone)} ${escapeHtml(r.label)}
           ${r.protegido ? '<span class="role-protegido-tag">protegida</span>' : ''}
         </span>
-        <span class="dash-list-item-status" style="color:#999;font-size:11px;">${r.slug}</span>
+        <span class="dash-list-item-status" style="color:#999;font-size:11px;">${escapeHtml(r.slug)}</span>
       </div>
       <div style="display:flex;gap:8px;">
-        <button class="btn-edit-dash" onclick="abrirEditarRole(${r.id}, '${escapeHtml(r.label)}', '${escapeHtml(r.icone)}', '${r.cor}')">Editar</button>
-        ${!r.protegido ? `<button class="btn-remove-dash" onclick="confirmarDeletarRole(${r.id}, '${escapeHtml(r.label)}')">Remover</button>` : ''}
+        <button class="btn-edit-dash" onclick="abrirEditarRole(${r.id}, '${escAttr(r.label)}', '${escAttr(r.icone)}', '${escAttr(r.cor)}')">Editar</button>
+        ${!r.protegido ? `<button class="btn-remove-dash" onclick="confirmarDeletarRole(${r.id}, '${escAttr(r.label)}')">Remover</button>` : ''}
       </div>
     </div>
     <div class="dash-add-form hidden" id="role-edit-form-${r.id}">
@@ -758,7 +780,7 @@ function renderizarConfigRoles() {
       </div>
       <div class="role-cor-group">
         <label>Cor do badge</label>
-        <input type="color" id="role-edit-cor-${r.id}" value="${r.cor}">
+        <input type="color" id="role-edit-cor-${r.id}" value="${escapeHtml(r.cor)}">
       </div>
       <div class="dash-add-actions">
         <button class="btn-save-dash" onclick="salvarEdicaoRole(${r.id})">Salvar</button>
@@ -953,7 +975,7 @@ function renderizarConfigSecoes() {
       </div>
       <div class="role-cor-group">
         <label for="secao-edit-cor-${sec.id}">Cor da seção</label>
-        <input type="color" id="secao-edit-cor-${sec.id}" value="${sec.cor}">
+        <input type="color" id="secao-edit-cor-${sec.id}" value="${escapeHtml(sec.cor)}">
       </div>
       <div class="dash-add-actions">
         <button class="btn-save-dash" onclick="salvarEdicaoSecao(${sec.id})">Salvar</button>
@@ -1306,14 +1328,14 @@ function renderizarConfigDashboards() {
             : dashes.map(d => `
               <div class="dash-list-item" id="dash-item-${d.id}">
                 <div class="dash-list-item-info">
-                  <span class="dash-list-item-nome">${d.nome}</span>
+                  <span class="dash-list-item-nome">${escapeHtml(d.nome)}</span>
                   <span class="dash-list-item-status ${d.iframe_url ? 'is-ok' : 'is-warn'}">
                     ${d.iframe_url ? ico('check') + 'URL configurada' : ico('alert') + 'Sem URL'}
                   </span>
                 </div>
                 <div class="dash-list-item-actions">
-                  <button class="btn-edit-dash" onclick="abrirEditarDash(${d.id}, '${escapeHtml(d.nome)}', '${escapeHtml(d.iframe_url || '')}', '${secao}')">Editar</button>
-                  <button class="btn-remove-dash" onclick="confirmarDeletarDashboard(${d.id}, '${d.nome}', '${secao}')">Remover</button>
+                  <button class="btn-edit-dash" onclick="abrirEditarDash(${d.id}, '${escAttr(d.nome)}', '${escAttr(d.iframe_url || '')}', '${secao}')">Editar</button>
+                  <button class="btn-remove-dash" onclick="confirmarDeletarDashboard(${d.id}, '${escAttr(d.nome)}', '${secao}')">Remover</button>
                 </div>
               </div>
               <div class="dash-add-form hidden" id="dash-edit-form-${d.id}">
