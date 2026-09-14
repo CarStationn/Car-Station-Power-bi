@@ -16,13 +16,20 @@ const { authMiddleware } = require('./src/middleware/auth');
 const app = express();
 
 // ==================== SEGURANÇA ====================
-// O Render serve a aplicação atrás de um proxy. Sem isto o Express lê o IP do
+// Quantos proxies existem na frente da aplicação. Sem isto o Express lê o IP do
 // proxy em vez do IP real, e o rate limit do login passa a contar as tentativas
 // de todos os usuários num balde só — um atacante estouraria a cota e deixaria
 // todo mundo sem conseguir entrar.
-// O valor é 1 (confia só no primeiro salto), e não `true`: confiar na cadeia
-// inteira permitiria forjar o IP pelo cabeçalho X-Forwarded-For.
-app.set('trust proxy', 1);
+//
+// Nunca use `true`: confiar na cadeia inteira permite forjar o IP pelo próprio
+// cabeçalho X-Forwarded-For. O número precisa ser exatamente a quantidade de
+// saltos até o cliente:
+//   1  Render, ou Nginx sozinho na frente
+//   2  Cloudflare Tunnel -> Nginx -> esta aplicação
+//
+// Se o IP registrado parecer interno, ou se o log acusar
+// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR, o número está errado.
+app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 
 app.use(helmet());
 
