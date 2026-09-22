@@ -4,6 +4,9 @@ node_modules/
 # Variáveis de ambiente (SENHAS)
 .env
 
+# Relatórios de senhas geradas por scripts administrativos (SENHAS)
+backend/scripts/rotacao-senhas-*.csv
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
