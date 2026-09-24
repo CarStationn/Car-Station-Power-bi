@@ -22,6 +22,8 @@ jobs:
   publicar:
     runs-on: ubuntu-latest
     strategy:
+      # Uma imagem com erro não cancela a outra
+      fail-fast: false
       matrix:
         include:
           - nome: indicadores-api

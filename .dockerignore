@@ -7,6 +7,7 @@ node_modules
 *.md
 Dockerfile*
 docker-compose*.yml
-nginx.conf
+# nginx.conf NÃO entra aqui: o Dockerfile.web precisa copiá-lo para a
+# configuração do Nginx (e depois o apaga da pasta pública).
 .env
 .env.example
