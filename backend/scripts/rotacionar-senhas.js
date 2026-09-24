@@ -56,16 +56,24 @@ function gerarSenhaTemporaria(tamanho = 10) {
 }
 
 async function main() {
+  // Mesma configuracao exata de backend/src/config/database.js — sem
+  // opcao de ssl. O app conecta assim ha meses em producao; um script
+  // separado com config diferente pode se comportar de outro jeito.
   const pool = new Pool({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    ssl: { rejectUnauthorized: false },
   });
 
   const client = await pool.connect();
+
+  // Nunca imprime usuario/senha do banco — so o host e o nome do banco,
+  // pra confirmar visualmente que este .env aponta para o mesmo banco
+  // que a producao usa. Se isso nao bater com o que esta configurado
+  // no Render, o restante do script pode estar mexendo no lugar errado.
+  console.log(`\nConectado em: ${process.env.DB_HOST}:${process.env.DB_PORT} / banco "${process.env.DB_NAME}"`);
 
   try {
     const resultado = await client.query(
