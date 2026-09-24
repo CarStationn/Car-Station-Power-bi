@@ -103,11 +103,16 @@ Abra o arquivo `index.html` no navegador ou use o **Live Server** do VS Code.
 
 ### 5. Acesso inicial
 
-| Usuário | Senha | Tipo |
-|---|---|---|
-| admin | admin | Administrador |
+Num banco vazio, a primeira subida cria o administrador `admin@carstation.com`
+com uma **senha aleatória, mostrada uma única vez no log do servidor**:
 
-> Recomendado: troque a senha do admin após o primeiro acesso.
+```
+✅ Banco sem usuários: administrador inicial criado
+   usuário: admin@carstation.com  senha temporária: ••••••••••••
+```
+
+O sistema exige a troca dessa senha no primeiro login. Não existe senha padrão:
+se o banco já tem qualquer usuário, nada é criado.
 
 ---
 

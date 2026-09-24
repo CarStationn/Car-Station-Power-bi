@@ -142,20 +142,26 @@ async function initDatabase() {
 
         console.log('✅ Migrações aplicadas');
 
-        const userExists = await query(
-            'SELECT * FROM users WHERE username = $1',
-            ['admin']
-        );
+        // Administrador inicial: só num banco sem nenhum usuário. Antes,
+        // bastava não existir alguém chamado "admin" para a API recriar
+        // admin/admin a cada reinício — apagar ou renomear essa conta
+        // reabria a porta. A senha é aleatória, aparece uma única vez
+        // neste log e precisa ser trocada no primeiro login.
+        const totalUsuarios = await query('SELECT COUNT(*) FROM users');
 
-        if (userExists.rows.length === 0) {
+        if (parseInt(totalUsuarios.rows[0].count) === 0) {
             const bcrypt = require('bcryptjs');
-            const hashedPassword = await bcrypt.hash('admin', 10);
+            const crypto = require('crypto');
+            const senhaInicial = crypto.randomBytes(9).toString('base64url');
+            const hashedPassword = await bcrypt.hash(senhaInicial, 10);
 
             await query(
-                'INSERT INTO users (username, password, tipo, email) VALUES ($1, $2, $3, $4)',
+                'INSERT INTO users (username, password, tipo, email, primeiro_acesso) VALUES ($1, $2, $3, $4, TRUE)',
                 ['admin', hashedPassword, 'admin', 'admin@carstation.com']
             );
-            console.log('✅ Usuário admin criado com sucesso');
+            console.log('✅ Banco sem usuários: administrador inicial criado');
+            console.log(`   usuário: admin@carstation.com  senha temporária: ${senhaInicial}`);
+            console.log('   A troca de senha é exigida no primeiro login.');
         }
 
     } catch (error) {
