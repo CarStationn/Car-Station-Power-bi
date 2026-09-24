@@ -1,0 +1,49 @@
+# ============================================================
+# Publica as imagens do portal no GHCR a cada push no main:
+#
+#   ghcr.io/carstationn/indicadores-api:{latest,<sha>}
+#   ghcr.io/carstationn/indicadores-web:{latest,<sha>}
+#
+# A VPS só baixa (docker-compose.prod.yml). A tag <sha> permite
+# voltar a qualquer versão anterior sem recompilar nada.
+# ============================================================
+name: Imagens Docker
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - nome: indicadores-api
+            contexto: ./backend
+            dockerfile: ./backend/Dockerfile
+          - nome: indicadores-web
+            contexto: .
+            dockerfile: ./Dockerfile.web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.contexto }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ghcr.io/carstationn/${{ matrix.nome }}:latest
+            ghcr.io/carstationn/${{ matrix.nome }}:${{ github.sha }}

@@ -6,7 +6,7 @@ backend
 node_modules
 *.md
 Dockerfile*
-docker-compose.yml
+docker-compose*.yml
 nginx.conf
 .env
 .env.example

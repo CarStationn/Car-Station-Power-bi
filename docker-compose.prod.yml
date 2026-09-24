@@ -1,22 +1,19 @@
 # ============================================================
-# Portal Car Station Indicadores — pilha completa em três containers.
+# Portal Car Station Indicadores — PRODUÇÃO na VPS da empresa.
 #
-#   web  Nginx: arquivos estáticos + repasse de /api
-#   api  Node/Express: autenticação, permissões, dados
-#   db   PostgreSQL: usuários, seções, painéis, permissões
+# Segue o padrão da casa: imagens prontas no GHCR (publicadas pelo
+# GitHub Actions a cada push no main), nada é compilado na VPS.
+# Na VPS ficam só este arquivo e o .env, em:
 #
-# ESTE arquivo compila as imagens a partir do código (uso local e
-# testes). Na VPS da empresa o padrão é baixar imagens prontas do
-# GHCR: use docker-compose.prod.yml.
+#   /opt/carstation/indicadores/
 #
-# Prefixo "indicadores-" em tudo (containers, rede, volume) para não
-# confundir com os projetos carstation-prod/carstation-homolog que
-# rodam na mesma VPS.
+# Atualizar para a versão mais nova do main:
 #
-# Configuração em .env (copie de .env.example).
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
 #
-#   docker compose up -d --build
-#   docker compose logs -f api
+# Voltar para uma versão anterior: TAG=<sha do commit> no .env e
+# repetir os dois comandos acima.
 # ============================================================
 
 name: indicadores
@@ -24,8 +21,6 @@ name: indicadores
 services:
 
   db:
-    # Mesma versão principal do Supabase (17), de onde os dados vêm:
-    # um dump do 17 não restaura limpo num servidor 16.
     image: postgres:17-alpine
     container_name: indicadores-db
     restart: unless-stopped
@@ -33,7 +28,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      # Evita que o locale do container mude a ordenação de texto
       POSTGRES_INITDB_ARGS: "--encoding=UTF8"
     volumes:
       - indicadores-db:/var/lib/postgresql/data
@@ -47,15 +41,12 @@ services:
       - indicadores
 
   api:
-    build:
-      context: ./backend
+    image: ghcr.io/carstationn/indicadores-api:${TAG:-latest}
     container_name: indicadores-api
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      # Sobrescreve o .env: dentro da rede do Docker o banco atende
-      # pelo nome do serviço, não por IP.
       DB_HOST: db
       DB_PORT: 5432
       PORT: 3001
@@ -66,13 +57,12 @@ services:
       - indicadores
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.web
+    image: ghcr.io/carstationn/indicadores-web:${TAG:-latest}
     container_name: indicadores-web
     restart: unless-stopped
     ports:
-      # Só no localhost do host: quem expõe para fora é o cloudflared.
+      # Só no localhost: o cloudflared (rede do host) chega aqui e
+      # publica em https://indicadores.carstation.com.br
       - "127.0.0.1:8095:80"
     depends_on:
       - api

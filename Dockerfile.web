@@ -13,3 +13,8 @@ COPY . /usr/share/nginx/html/
 RUN rm -rf /usr/share/nginx/html/backend \
            /usr/share/nginx/html/nginx.conf \
            /usr/share/nginx/html/Dockerfile.web
+
+# Aqui o portal e a API saem do mesmo endereço (o Nginx repassa /api),
+# então o endereço da API é sempre relativo. O config.js do repositório
+# continua apontando para o Render, que atende o Vercel até a virada.
+RUN printf "window.API_BASE_URL = '/api';\n" > /usr/share/nginx/html/config.js
